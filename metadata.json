@@ -1,0 +1,6 @@
+{
+  "name": "IIT Indore - Ek Bharat Shreshtha Bharat (EBSB)",
+  "description": "Official new-age digital portal for Ek Bharat Shreshtha Bharat Cell at IIT Indore, celebrating national integration, paired state cultural exchanges, Bhasha Sangam, events, and AI cultural guide.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
