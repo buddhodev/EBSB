@@ -54,10 +54,9 @@ export const AboutSection: React.FC = () => {
             <Quote className="w-10 h-10 text-indigo-200 absolute top-4 right-4" />
             <div className="flex items-center gap-4">
               <img
-                src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200"
+                src="/assets/aistudio/image_e9ad3517.png"
                 alt="Prof. Suhas S. Joshi"
-                className="w-16 h-16 rounded-full object-cover border-2 border-indigo-400 shadow-sm"
-                referrerPolicy="no-referrer"
+                className="w-16 h-16 rounded-full object-cover object-center border-2 border-indigo-400 shadow-sm"
               />
               <div>
                 <h3 className="text-lg font-bold text-indigo-950">Prof. Suhas S. Joshi</h3>
@@ -75,10 +74,9 @@ export const AboutSection: React.FC = () => {
             <Quote className="w-10 h-10 text-indigo-200 absolute top-4 right-4" />
             <div className="flex items-center gap-4">
               <img
-                src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200"
+                src="/assets/aistudio/image_013c95b8.png"
                 alt="Dr. Sharad Gupta"
-                className="w-16 h-16 rounded-full object-cover border-2 border-indigo-400 shadow-sm"
-                referrerPolicy="no-referrer"
+                className="w-16 h-16 rounded-full object-cover object-top border-2 border-indigo-400 shadow-sm"
               />
               <div>
                 <h3 className="text-lg font-bold text-indigo-950">Dr. Sharad Gupta</h3>

@@ -122,26 +122,39 @@ export const Navbar: React.FC<NavbarProps> = ({
         {/* Brand / Logo Section */}
         <div 
           onClick={() => handleNavClick('home')}
-          className="flex items-center gap-3 cursor-pointer group"
+          className="flex items-center gap-2.5 cursor-pointer group shrink-0"
           role="button"
           tabIndex={0}
           aria-label="Go to IIT Indore EBSB Home"
         >
-          {/* Emblem Icon */}
-          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-indigo-900 to-indigo-700 p-0.5 shadow-lg shadow-indigo-900/20 group-hover:scale-105 transition-transform flex items-center justify-center text-white font-bold text-xl">
-            I
+          {/* Official IIT Indore & EBSB Logos */}
+          <div className="flex items-center gap-1.5 shrink-0">
+            <div className="w-11 h-11 rounded-xl bg-white/95 p-0.5 shadow-md border border-indigo-100 group-hover:scale-105 transition-transform flex items-center justify-center overflow-hidden">
+              <img
+                src="/assets/aistudio/image_c01be850.png"
+                alt="IIT Indore Official Logo"
+                className="w-full h-full object-contain"
+              />
+            </div>
+            <div className="w-11 h-11 rounded-full bg-white shadow-md border border-orange-200 group-hover:scale-105 transition-transform flex items-center justify-center overflow-hidden">
+              <img
+                src="/assets/aistudio/image_c486a2c1.png"
+                alt="Ek Bharat Shreshtha Bharat Official Logo"
+                className="w-full h-full object-cover scale-[1.03]"
+              />
+            </div>
           </div>
 
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="font-extrabold text-lg sm:text-xl tracking-tight text-indigo-950">
+          <div className="min-w-0">
+            <div className="flex items-center gap-1.5">
+              <span className="font-extrabold text-base sm:text-lg tracking-tight text-indigo-950 whitespace-nowrap">
                 IIT INDORE
               </span>
-              <span className="text-[10px] bg-orange-100 text-orange-700 px-2.5 py-0.5 rounded-full font-bold border border-orange-200">
+              <span className="text-[10px] bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-bold border border-orange-200 whitespace-nowrap">
                 EBSB CELL
               </span>
             </div>
-            <p className="text-[10px] uppercase tracking-widest text-slate-600 font-semibold">
+            <p className="text-[10px] uppercase tracking-wider text-slate-600 font-semibold whitespace-nowrap">
               Ek Bharat Shreshtha Bharat
             </p>
           </div>

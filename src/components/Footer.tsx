@@ -1,5 +1,5 @@
 import React from 'react';
-import { Globe, ArrowUp, Shield, Heart } from 'lucide-react';
+import { ArrowUp, Shield, Heart } from 'lucide-react';
 
 export const Footer: React.FC = () => {
   const scrollToTop = () => {
@@ -15,8 +15,21 @@ export const Footer: React.FC = () => {
           {/* Brand Info */}
           <div className="md:col-span-5 space-y-3">
             <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-2xl bg-indigo-600 text-white shadow-md shadow-indigo-200">
-                <Globe className="w-5 h-5" />
+              <div className="flex items-center gap-2 shrink-0">
+                <div className="w-12 h-12 rounded-xl bg-white p-1 shadow-md border border-indigo-100 flex items-center justify-center overflow-hidden">
+                  <img
+                    src="/assets/aistudio/image_c01be850.png"
+                    alt="IIT Indore Official Logo"
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+                <div className="w-12 h-12 rounded-full bg-white shadow-md border border-orange-200 flex items-center justify-center overflow-hidden">
+                  <img
+                    src="/assets/aistudio/image_c486a2c1.png"
+                    alt="Ek Bharat Shreshtha Bharat Official Logo"
+                    className="w-full h-full object-cover scale-[1.03]"
+                  />
+                </div>
               </div>
               <div>
                 <h3 className="text-base font-black text-indigo-950">IIT Indore • EBSB Portal</h3>
