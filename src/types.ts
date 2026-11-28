@@ -3,6 +3,7 @@ export interface EventItem {
   title: string;
   category: 'Youth Exchange' | 'Bhasha Sangam' | 'Cultural Night' | 'Heritage Walk' | 'Food Fest' | 'Quiz' | 'Webinar';
   date: string;
+  targetDate?: string;
   time: string;
   venue: string;
   status: 'Upcoming' | 'Completed' | 'Ongoing';

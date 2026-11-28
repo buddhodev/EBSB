@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowUp, Shield, Heart } from 'lucide-react';
+import { ArrowUp, Shield, ExternalLink } from 'lucide-react';
 
 export const Footer: React.FC = () => {
   const scrollToTop = () => {
@@ -62,30 +62,54 @@ export const Footer: React.FC = () => {
             </ul>
           </div>
 
-          {/* External Govt Portals */}
+          {/* Important Links */}
           <div className="md:col-span-4 space-y-2.5">
             <h4 className="text-xs font-black text-[#ff9933] uppercase tracking-wider border-b border-slate-700 pb-2">
-              Official Portals
+              Important Links
             </h4>
             <ul className="space-y-2 text-slate-300 font-medium">
               <li>
-                <a href="https://ekbharat.gov.in" target="_blank" rel="noreferrer" className="hover:text-[#ff9933] transition-colors flex items-center gap-1">
-                  <span>National EBSB Portal (ekbharat.gov.in)</span>
+                <a
+                  href="https://www.iiti.ac.in/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-[#ff9933] transition-colors inline-flex items-center gap-1.5"
+                >
+                  <span>IIT Indore</span>
+                  <ExternalLink className="w-3 h-3 text-slate-400" />
                 </a>
               </li>
               <li>
-                <a href="https://www.education.gov.in" target="_blank" rel="noreferrer" className="hover:text-[#ff9933] transition-colors">
-                  Ministry of Education, Govt. of India
+                <a
+                  href="https://ekbharat.gov.in/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-[#ff9933] transition-colors inline-flex items-center gap-1.5"
+                >
+                  <span>EkBharat.gov.in</span>
+                  <ExternalLink className="w-3 h-3 text-slate-400" />
                 </a>
               </li>
               <li>
-                <a href="https://www.iiti.ac.in" target="_blank" rel="noreferrer" className="hover:text-[#ff9933] transition-colors">
-                  IIT Indore Main Portal (www.iiti.ac.in)
+                <a
+                  href="https://swachhbharatmission.gov.in/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-[#ff9933] transition-colors inline-flex items-center gap-1.5"
+                >
+                  <span>SwachhBharatMission.gov.in</span>
+                  <ExternalLink className="w-3 h-3 text-slate-400" />
                 </a>
               </li>
               <li>
-                <a href="https://swayam.gov.in" target="_blank" rel="noreferrer" className="hover:text-[#ff9933] transition-colors">
-                  Swayam / Bhasha Sangam Mobile App
+                <a
+                  href="https://unnatbharatabhiyan.gov.in/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-[#ff9933] transition-colors inline-flex items-center gap-1.5"
+                >
+                  <span>UnnatBharatAbhiyan.gov.in</span>
+                  <ExternalLink className="w-3 h-3 text-slate-400" />
                 </a>
               </li>
             </ul>
@@ -100,9 +124,9 @@ export const Footer: React.FC = () => {
             © {new Date().getFullYear()} Ek Bharat Shreshtha Bharat Cell, Indian Institute of Technology Indore. All Rights Reserved.
           </div>
 
-          <div className="flex items-center gap-4">
-            <span className="flex items-center gap-1 text-slate-300 font-semibold">
-              Crafted with <Heart className="w-3.5 h-3.5 text-[#f26522] fill-[#f26522]" /> for National Unity
+          <div className="flex flex-wrap items-center justify-center sm:justify-end gap-4">
+            <span className="text-slate-200 font-semibold text-center sm:text-right">
+              Site designed and Created by <span className="text-[#ff9933]">Sri Buddhodev Ghosh (PhD, CRDT)</span>
             </span>
 
             <button

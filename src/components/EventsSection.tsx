@@ -1,7 +1,72 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { EVENTS_DATA } from '../data/ebsbData';
 import { EventItem } from '../types';
-import { Calendar, MapPin, Clock, Search, Filter, CheckCircle, Sparkles, X, User, Mail, Phone, School, Check } from 'lucide-react';
+import { Calendar, MapPin, Clock, Search, Filter, CheckCircle, X, User, Mail, Phone, Check, Timer, Flame } from 'lucide-react';
+
+interface CountdownBreakdown {
+  days: number;
+  hours: number;
+  minutes: number;
+  seconds: number;
+  totalMs: number;
+  isUrgent: boolean;
+}
+
+/**
+ * Resolves a native Date object for an event's start timestamp.
+ * If an event is marked "Upcoming" and its configured date has already passed
+ * relative to the viewer's clock, rolls the year forward so the countdown stays live.
+ */
+function resolveEventTargetDate(ev: EventItem, referenceNow: Date): Date | null {
+  if (ev.status !== 'Upcoming') return null;
+
+  let parsed: Date | null = null;
+  if (ev.targetDate) {
+    const candidate = new Date(ev.targetDate);
+    if (!Number.isNaN(candidate.getTime())) {
+      parsed = candidate;
+    }
+  }
+
+  if (!parsed) {
+    // Fallback parsing for display date ranges like "December 12 - 18, 2026"
+    const normalized = ev.date.replace(/\s*-\s*\d+/, '');
+    const candidate = new Date(normalized);
+    if (!Number.isNaN(candidate.getTime())) {
+      parsed = candidate;
+    }
+  }
+
+  if (!parsed) return null;
+
+  const target = new Date(parsed.getTime());
+  while (target.getTime() <= referenceNow.getTime()) {
+    target.setFullYear(target.getFullYear() + 1);
+  }
+  return target;
+}
+
+function getCountdownBreakdown(targetDate: Date, currentNow: Date): CountdownBreakdown {
+  const totalMs = Math.max(0, targetDate.getTime() - currentNow.getTime());
+  const totalSeconds = Math.floor(totalMs / 1000);
+  const days = Math.floor(totalSeconds / 86400);
+  const hours = Math.floor((totalSeconds % 86400) / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  return {
+    days,
+    hours,
+    minutes,
+    seconds,
+    totalMs,
+    isUrgent: days <= 14,
+  };
+}
+
+function padTwo(val: number): string {
+  return String(val).padStart(2, '0');
+}
 
 export const EventsSection: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState<string>('All');
@@ -9,6 +74,42 @@ export const EventsSection: React.FC = () => {
   const [selectedEventModal, setSelectedEventModal] = useState<EventItem | null>(null);
   const [registrationModalEvent, setRegistrationModalEvent] = useState<EventItem | null>(null);
   const [registeredSuccess, setRegisteredSuccess] = useState<boolean>(false);
+
+  // Live native Date ticker synchronized across all event countdowns
+  const [now, setNow] = useState<Date>(() => new Date());
+
+  useEffect(() => {
+    const intervalId = window.setInterval(() => {
+      setNow(new Date());
+    }, 1000);
+
+    return () => window.clearInterval(intervalId);
+  }, []);
+
+  // Precompute stable target Date objects for all upcoming events
+  const eventTargets = useMemo(() => {
+    const initialNow = new Date();
+    const map = new Map<string, Date>();
+    EVENTS_DATA.forEach((ev) => {
+      const target = resolveEventTargetDate(ev, initialNow);
+      if (target) {
+        map.set(ev.id, target);
+      }
+    });
+    return map;
+  }, []);
+
+  // Identify the soonest upcoming event for the registration urgency banner
+  const nextUpcomingEvent = useMemo(() => {
+    const upcomingWithDates = EVENTS_DATA
+      .filter((ev) => ev.status === 'Upcoming' && eventTargets.has(ev.id))
+      .sort((a, b) => eventTargets.get(a.id)!.getTime() - eventTargets.get(b.id)!.getTime());
+    return upcomingWithDates[0] ?? null;
+  }, [eventTargets]);
+
+  const nextSpotlightCountdown = nextUpcomingEvent
+    ? getCountdownBreakdown(eventTargets.get(nextUpcomingEvent.id)!, now)
+    : null;
 
   // Form State
   const [formData, setFormData] = useState({
@@ -83,6 +184,71 @@ export const EventsSection: React.FC = () => {
           </div>
         </div>
 
+        {/* Next Upcoming Event Live Countdown Spotlight */}
+        {nextUpcomingEvent && nextSpotlightCountdown && (
+          <div className="mt-8 rounded-2xl bg-[#163c6b] text-white border border-[#102847] shadow-lg overflow-hidden">
+            <div className="h-1.5 w-full ebsb-tricolor-bar" />
+            <div className="p-5 sm:p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+              <div className="space-y-2 max-w-xl">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-[#f26522] text-white text-[10px] font-extrabold uppercase tracking-wider">
+                    <Flame className="w-3 h-3" />
+                    {nextSpotlightCountdown.isUrgent ? 'Registration Closing Soon' : 'Next Upcoming Event'}
+                  </span>
+                  <span className="text-[11px] font-semibold text-orange-200">
+                    {nextUpcomingEvent.date} • {nextUpcomingEvent.time}
+                  </span>
+                </div>
+                <h3 className="text-lg sm:text-xl font-black tracking-tight text-white">
+                  {nextUpcomingEvent.title}
+                </h3>
+                <p className="text-xs text-slate-200 flex items-center gap-1.5 font-medium">
+                  <MapPin className="w-3.5 h-3.5 text-[#ff9933] shrink-0" />
+                  <span>{nextUpcomingEvent.venue}</span>
+                </p>
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+                {/* 4-Unit Native Date Countdown Display */}
+                <div
+                  className="grid grid-cols-4 gap-2 text-center"
+                  role="timer"
+                  aria-live="off"
+                  aria-label={`Time remaining until ${nextUpcomingEvent.title}`}
+                >
+                  {[
+                    { value: padTwo(nextSpotlightCountdown.days), label: 'Days' },
+                    { value: padTwo(nextSpotlightCountdown.hours), label: 'Hours' },
+                    { value: padTwo(nextSpotlightCountdown.minutes), label: 'Mins' },
+                    { value: padTwo(nextSpotlightCountdown.seconds), label: 'Secs' },
+                  ].map((unit) => (
+                    <div
+                      key={unit.label}
+                      className="min-w-[60px] sm:min-w-[68px] px-2.5 py-2 rounded-xl bg-[#102847] border border-white/15"
+                    >
+                      <div className="text-xl sm:text-2xl font-black text-[#ff9933] tabular-nums leading-none">
+                        {unit.value}
+                      </div>
+                      <div className="text-[10px] font-bold uppercase tracking-wider text-slate-300 mt-1">
+                        {unit.label}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {nextUpcomingEvent.registrationOpen && (
+                  <button
+                    onClick={() => setRegistrationModalEvent(nextUpcomingEvent)}
+                    className="px-5 py-3 rounded-xl bg-[#f26522] hover:bg-[#dc4f12] text-white text-xs font-extrabold tracking-wide transition-colors shadow-md whitespace-nowrap"
+                  >
+                    Register Before Cutoff
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Category Filter Pills */}
         <div className="mt-8 flex flex-wrap items-center gap-2">
           <Filter className="w-4 h-4 text-[#f26522] mr-2 hidden sm:inline" />
@@ -103,7 +269,11 @@ export const EventsSection: React.FC = () => {
 
         {/* Events Grid */}
         <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredEvents.map((ev) => (
+          {filteredEvents.map((ev) => {
+            const targetDate = eventTargets.get(ev.id);
+            const countdown = targetDate ? getCountdownBreakdown(targetDate, now) : null;
+
+            return (
             <div
               key={ev.id}
               className="rounded-2xl bg-white border border-slate-200 hover:border-[#f26522] hover:shadow-lg transition-all overflow-hidden flex flex-col group shadow-sm"
@@ -162,6 +332,50 @@ export const EventsSection: React.FC = () => {
                   </div>
                 </div>
 
+                {/* Live Countdown Widget for Upcoming Events */}
+                {countdown && (
+                  <div
+                    className={`rounded-xl p-3 border space-y-2 ${
+                      countdown.isUrgent
+                        ? 'bg-[#fff7f2] border-[#fed7ba]'
+                        : 'bg-[#f4f6f9] border-slate-200'
+                    }`}
+                    role="timer"
+                    aria-label={`Countdown to ${ev.title}`}
+                  >
+                    <div className="flex items-center justify-between text-[10px] font-extrabold uppercase tracking-wider">
+                      <span className={`inline-flex items-center gap-1 ${countdown.isUrgent ? 'text-[#b83d0d]' : 'text-[#163c6b]'}`}>
+                        <Timer className="w-3.5 h-3.5 text-[#f26522]" />
+                        {ev.registrationOpen ? 'Registration Ends In' : 'Event Starts In'}
+                      </span>
+                      {countdown.isUrgent && (
+                        <span className="text-[#f26522]">Filling Fast</span>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-4 gap-1.5 text-center">
+                      {[
+                        { value: padTwo(countdown.days), unit: 'Days' },
+                        { value: padTwo(countdown.hours), unit: 'Hrs' },
+                        { value: padTwo(countdown.minutes), unit: 'Min' },
+                        { value: padTwo(countdown.seconds), unit: 'Sec' },
+                      ].map((slot) => (
+                        <div
+                          key={slot.unit}
+                          className="bg-white rounded-lg py-1.5 px-1 border border-slate-200/80 shadow-2xs"
+                        >
+                          <div className={`text-sm font-black tabular-nums leading-tight ${countdown.isUrgent ? 'text-[#b83d0d]' : 'text-[#163c6b]'}`}>
+                            {slot.value}
+                          </div>
+                          <div className="text-[9px] font-bold uppercase text-slate-500">
+                            {slot.unit}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {/* Card Actions */}
                 <div className="pt-2 flex items-center justify-between gap-2">
                   <button
@@ -183,7 +397,8 @@ export const EventsSection: React.FC = () => {
 
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* View Details Modal */}
@@ -269,6 +484,20 @@ export const EventsSection: React.FC = () => {
                 <span className="text-[10px] uppercase font-bold text-[#b83d0d]">Student & Delegate Registration</span>
                 <h3 className="text-xl font-black text-[#163c6b] mt-1">{registrationModalEvent.title}</h3>
                 <p className="text-xs text-slate-600 font-medium">Please complete the form below to secure your seat / delegation slot.</p>
+                {eventTargets.has(registrationModalEvent.id) && (() => {
+                  const modalCountdown = getCountdownBreakdown(eventTargets.get(registrationModalEvent.id)!, now);
+                  return (
+                    <div className="mt-3 flex items-center justify-between gap-2 px-3.5 py-2 rounded-xl bg-[#fff7f2] border border-[#fed7ba] text-xs">
+                      <span className="inline-flex items-center gap-1.5 font-bold text-[#b83d0d]">
+                        <Timer className="w-3.5 h-3.5 text-[#f26522]" />
+                        Closes in
+                      </span>
+                      <span className="font-black text-[#163c6b] tabular-nums">
+                        {padTwo(modalCountdown.days)}d : {padTwo(modalCountdown.hours)}h : {padTwo(modalCountdown.minutes)}m : {padTwo(modalCountdown.seconds)}s
+                      </span>
+                    </div>
+                  );
+                })()}
               </div>
 
               {registeredSuccess ? (
