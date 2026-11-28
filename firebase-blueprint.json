@@ -1,0 +1,178 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Authenticated IIT Indore EBSB portal user profile containing private contact metadata.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "Firebase Authentication user UID.",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "displayName": {
+          "type": "string",
+          "description": "User full display name from Google account.",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "Verified Google account email address.",
+          "maxLength": 254
+        },
+        "photoURL": {
+          "type": "string",
+          "description": "Profile avatar URL.",
+          "maxLength": 500
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when user profile was first created."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when user profile was last updated."
+        }
+      },
+      "required": ["uid", "displayName", "email", "createdAt", "updatedAt"]
+    },
+    "VolunteerApplication": {
+      "title": "VolunteerApplication",
+      "description": "Student volunteer crew application submitted for IIT Indore EBSB Cell.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Owner Firebase Auth UID.",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "name": {
+          "type": "string",
+          "description": "Applicant full name.",
+          "minLength": 2,
+          "maxLength": 100
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "Applicant email address.",
+          "maxLength": 254
+        },
+        "rollNo": {
+          "type": "string",
+          "description": "IIT Indore or institutional roll number.",
+          "minLength": 2,
+          "maxLength": 40,
+          "pattern": "^[a-zA-Z0-9_\\-\\/\\s]+$"
+        },
+        "department": {
+          "type": "string",
+          "description": "Academic department.",
+          "minLength": 2,
+          "maxLength": 100
+        },
+        "preferredCell": {
+          "type": "string",
+          "description": "Preferred EBSB working wing.",
+          "enum": [
+            "Youth Delegation Hosting",
+            "Bhasha Sangam Circle",
+            "Cultural Stage & Events",
+            "Media & Graphic Design"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "description": "Application review status.",
+          "enum": ["submitted", "under_review", "approved"]
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of initial submission."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of latest update."
+        }
+      },
+      "required": [
+        "userId",
+        "name",
+        "email",
+        "rollNo",
+        "department",
+        "preferredCell",
+        "status",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "QuizAttempt": {
+      "title": "QuizAttempt",
+      "description": "Immutable record of a completed Bhasha / National Integration AI quiz attempt.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Owner Firebase Auth UID.",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "topic": {
+          "type": "string",
+          "description": "Selected EBSB quiz topic.",
+          "minLength": 2,
+          "maxLength": 120
+        },
+        "difficulty": {
+          "type": "string",
+          "description": "Quiz difficulty tier.",
+          "enum": ["Easy", "Medium", "Hard"]
+        },
+        "score": {
+          "type": "integer",
+          "description": "Number of correct answers achieved."
+        },
+        "totalQuestions": {
+          "type": "integer",
+          "description": "Total number of questions in the quiz."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when quiz attempt was recorded."
+        }
+      },
+      "required": [
+        "userId",
+        "topic",
+        "difficulty",
+        "score",
+        "totalQuestions",
+        "createdAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "Private user profiles isolated strictly to the authenticated owner."
+    },
+    "/volunteerApplications/{applicationId}": {
+      "schema": { "$ref": "#/entities/VolunteerApplication" },
+      "description": "Authenticated student volunteer applications owned by the submitting user."
+    },
+    "/quizAttempts/{attemptId}": {
+      "schema": { "$ref": "#/entities/QuizAttempt" },
+      "description": "Immutable Bhasha & EBSB quiz attempt records owned by the authenticated user."
+    }
+  }
+}

@@ -1,0 +1,227 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global Safety Net: Deny all access by default
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // =========================================================================
+    // Global Hardened Primitives
+    // =========================================================================
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerifiedUser() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isOwner(userId) {
+      return isVerifiedUser() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidEmail(val) {
+      return val is string && val.size() >= 3 && val.size() <= 254 && val.matches('^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$');
+    }
+
+    // =========================================================================
+    // Validation Blueprints (Anti-Update-Gap)
+    // =========================================================================
+
+    function isValidUserProfile(data) {
+      return data.keys().hasAll(['uid', 'displayName', 'email', 'createdAt', 'updatedAt']) &&
+        data.keys().hasOnly(['uid', 'displayName', 'email', 'photoURL', 'createdAt', 'updatedAt']) &&
+        isValidId(data.uid) &&
+        data.uid == request.auth.uid &&
+        data.displayName is string &&
+        data.displayName.size() >= 1 &&
+        data.displayName.size() <= 120 &&
+        isValidEmail(data.email) &&
+        data.email == request.auth.token.email &&
+        (!('photoURL' in data) || (data.photoURL is string && data.photoURL.size() <= 500)) &&
+        data.createdAt is timestamp &&
+        data.updatedAt is timestamp;
+    }
+
+    function isValidVolunteerApplication(data) {
+      return data.keys().hasAll([
+          'userId',
+          'name',
+          'email',
+          'rollNo',
+          'department',
+          'preferredCell',
+          'status',
+          'createdAt',
+          'updatedAt'
+        ]) &&
+        data.keys().hasOnly([
+          'userId',
+          'name',
+          'email',
+          'rollNo',
+          'department',
+          'preferredCell',
+          'status',
+          'createdAt',
+          'updatedAt'
+        ]) &&
+        isValidId(data.userId) &&
+        data.userId == request.auth.uid &&
+        data.name is string &&
+        data.name.size() >= 2 &&
+        data.name.size() <= 100 &&
+        isValidEmail(data.email) &&
+        data.rollNo is string &&
+        data.rollNo.size() >= 2 &&
+        data.rollNo.size() <= 40 &&
+        data.rollNo.matches('^[a-zA-Z0-9_\\-\\/\\s]+$') &&
+        data.department is string &&
+        data.department.size() >= 2 &&
+        data.department.size() <= 100 &&
+        data.preferredCell is string &&
+        data.preferredCell in [
+          'Youth Delegation Hosting',
+          'Bhasha Sangam Circle',
+          'Cultural Stage & Events',
+          'Media & Graphic Design'
+        ] &&
+        data.status is string &&
+        data.status in ['submitted', 'under_review', 'approved'] &&
+        data.createdAt is timestamp &&
+        data.updatedAt is timestamp;
+    }
+
+    function isValidQuizAttempt(data) {
+      return data.keys().hasAll([
+          'userId',
+          'topic',
+          'difficulty',
+          'score',
+          'totalQuestions',
+          'createdAt'
+        ]) &&
+        data.keys().hasOnly([
+          'userId',
+          'topic',
+          'difficulty',
+          'score',
+          'totalQuestions',
+          'createdAt'
+        ]) &&
+        isValidId(data.userId) &&
+        data.userId == request.auth.uid &&
+        data.topic is string &&
+        data.topic.size() >= 2 &&
+        data.topic.size() <= 120 &&
+        data.difficulty is string &&
+        data.difficulty in ['Easy', 'Medium', 'Hard'] &&
+        data.score is int &&
+        data.totalQuestions is int &&
+        data.totalQuestions >= 1 &&
+        data.totalQuestions <= 20 &&
+        data.score >= 0 &&
+        data.score <= data.totalQuestions &&
+        data.createdAt is timestamp;
+    }
+
+    // =========================================================================
+    // Collection 1: /users/{userId} (Strict PII Isolation)
+    // =========================================================================
+    match /users/{userId} {
+      allow get: if isVerifiedUser() && isValidId(userId) && isOwner(userId);
+      allow list: if false;
+
+      allow create: if isVerifiedUser() &&
+        isValidId(userId) &&
+        isOwner(userId) &&
+        isValidUserProfile(incoming()) &&
+        incoming().uid == userId &&
+        incoming().createdAt == request.time &&
+        incoming().updatedAt == request.time;
+
+      allow update: if isVerifiedUser() &&
+        isValidId(userId) &&
+        isOwner(userId) &&
+        isValidUserProfile(incoming()) &&
+        incoming().uid == existing().uid &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().updatedAt == request.time &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'email', 'photoURL', 'updatedAt']);
+
+      allow delete: if false;
+    }
+
+    // =========================================================================
+    // Collection 2: /volunteerApplications/{applicationId}
+    // =========================================================================
+    match /volunteerApplications/{applicationId} {
+      allow get: if isVerifiedUser() &&
+        isValidId(applicationId) &&
+        existing().userId == request.auth.uid;
+
+      allow list: if isVerifiedUser() &&
+        resource.data.userId == request.auth.uid;
+
+      allow create: if isVerifiedUser() &&
+        isValidId(applicationId) &&
+        isValidVolunteerApplication(incoming()) &&
+        incoming().status == 'submitted' &&
+        incoming().createdAt == request.time &&
+        incoming().updatedAt == request.time &&
+        exists(/databases/$(database)/documents/users/$(request.auth.uid));
+
+      allow update: if isVerifiedUser() &&
+        isValidId(applicationId) &&
+        isValidVolunteerApplication(incoming()) &&
+        existing().userId == request.auth.uid &&
+        existing().status == 'submitted' &&
+        incoming().userId == existing().userId &&
+        incoming().status == existing().status &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().updatedAt == request.time &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['department', 'preferredCell', 'rollNo', 'updatedAt']);
+
+      allow delete: if isVerifiedUser() &&
+        isValidId(applicationId) &&
+        existing().userId == request.auth.uid &&
+        existing().status == 'submitted';
+    }
+
+    // =========================================================================
+    // Collection 3: /quizAttempts/{attemptId} (Immutable Audit Records)
+    // =========================================================================
+    match /quizAttempts/{attemptId} {
+      allow get: if isVerifiedUser() &&
+        isValidId(attemptId) &&
+        existing().userId == request.auth.uid;
+
+      allow list: if isVerifiedUser() &&
+        resource.data.userId == request.auth.uid;
+
+      allow create: if isVerifiedUser() &&
+        isValidId(attemptId) &&
+        isValidQuizAttempt(incoming()) &&
+        incoming().createdAt == request.time &&
+        exists(/databases/$(database)/documents/users/$(request.auth.uid));
+
+      allow update: if false;
+      allow delete: if false;
+    }
+  }
+}

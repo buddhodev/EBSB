@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   BookOpen,
   Volume2,
@@ -174,12 +174,33 @@ export const SanskritHub: React.FC<SanskritHubProps> = ({ onOpenAiModal }) => {
   const [activeTab, setActiveTab] = useState<'bhasha' | 'shlokas' | 'iks' | 'quiz'>('bhasha');
   const [searchPhrase, setSearchPhrase] = useState('');
   const [playingId, setPlayingId] = useState<string | null>(null);
+  const voicesRef = useRef<SpeechSynthesisVoice[]>([]);
 
   // Quiz state
   const [quizIndex, setQuizIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [score, setScore] = useState(0);
   const [quizFinished, setQuizFinished] = useState(false);
+
+  // Load voices reliably across browsers and stop audio on unmount
+  useEffect(() => {
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
+
+    const loadVoices = () => {
+      const list = window.speechSynthesis.getVoices();
+      if (list.length > 0) {
+        voicesRef.current = list;
+      }
+    };
+
+    loadVoices();
+    window.speechSynthesis.addEventListener('voiceschanged', loadVoices);
+
+    return () => {
+      window.speechSynthesis.removeEventListener('voiceschanged', loadVoices);
+      window.speechSynthesis.cancel();
+    };
+  }, []);
 
   const filteredPhrases = SANSKRIT_PHRASES.filter(
     (p) =>
@@ -189,28 +210,91 @@ export const SanskritHub: React.FC<SanskritHubProps> = ({ onOpenAiModal }) => {
       p.hindi.toLowerCase().includes(searchPhrase.toLowerCase())
   );
 
-  const handleSpeak = (text: string, id: string) => {
+  // Convert scholarly IAST diacritics to clear phonetic ASCII for non-Devanagari TTS engines
+  const toPhoneticFallback = (transliteration: string): string => {
+    return transliteration
+      .replace(/ā/gi, 'aa')
+      .replace(/ī/gi, 'ee')
+      .replace(/ū/gi, 'oo')
+      .replace(/[ṁṃ]/gi, 'm')
+      .replace(/ḥ/gi, 'h')
+      .replace(/[śṣ]/gi, 'sh')
+      .replace(/[ñṇṅ]/gi, 'n')
+      .replace(/ṭ/gi, 't')
+      .replace(/ḍ/gi, 'd')
+      .replace(/ṛ/gi, 'ri')
+      .replace(/\|+/g, ', ')
+      .replace(/\.\.\./g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  };
+
+  const handleSpeak = (sanskritText: string, transliteration: string, id: string) => {
     if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
+
+    // Clicking the currently playing item stops playback
+    if (playingId === id) {
+      window.speechSynthesis.cancel();
+      setPlayingId(null);
+      return;
+    }
 
     window.speechSynthesis.cancel();
     setPlayingId(id);
 
-    // Clean text for speech
-    const cleanText = text.replace(/[/]/g, ' or ');
-    const utterance = new SpeechSynthesisUtterance(cleanText);
-    utterance.rate = 0.85;
+    const voices = voicesRef.current.length > 0 ? voicesRef.current : window.speechSynthesis.getVoices();
+    const devanagariVoice =
+      voices.find((v) => /^sa(-|$)/i.test(v.lang)) ||
+      voices.find((v) => /^hi(-|$)/i.test(v.lang)) ||
+      voices.find((v) => /^mr(-|$)/i.test(v.lang));
+    const indianEnglishVoice =
+      voices.find((v) => /^en-IN/i.test(v.lang)) ||
+      voices.find((v) => /^en(-|$)/i.test(v.lang));
 
-    // Try finding Sanskrit or Hindi voice
-    const voices = window.speechSynthesis.getVoices();
-    const hiVoice = voices.find((v) => v.lang.includes('hi-IN') || v.lang.includes('sa'));
-    if (hiVoice) {
-      utterance.voice = hiVoice;
+    // Split on "/" so each Sanskrit variant is spoken cleanly in sequence without saying "or"
+    const sourceSegments = devanagariVoice
+      ? sanskritText
+          .split('/')
+          .map((seg) =>
+            seg
+              .replace(/[।॥]/g, ', ')
+              .replace(/\.\.\./g, ' ')
+              .replace(/\s+/g, ' ')
+              .trim()
+          )
+          .filter(Boolean)
+      : transliteration
+          .split('/')
+          .map((seg) => toPhoneticFallback(seg))
+          .filter(Boolean);
+
+    if (sourceSegments.length === 0) {
+      setPlayingId(null);
+      return;
     }
 
-    utterance.onend = () => setPlayingId(null);
-    utterance.onerror = () => setPlayingId(null);
+    sourceSegments.forEach((segment, index) => {
+      const utterance = new SpeechSynthesisUtterance(segment);
+      utterance.rate = 0.85;
+      utterance.pitch = 1.0;
 
-    window.speechSynthesis.speak(utterance);
+      if (devanagariVoice) {
+        utterance.voice = devanagariVoice;
+        utterance.lang = devanagariVoice.lang;
+      } else {
+        if (indianEnglishVoice) {
+          utterance.voice = indianEnglishVoice;
+        }
+        utterance.lang = indianEnglishVoice?.lang || 'en-IN';
+      }
+
+      if (index === sourceSegments.length - 1) {
+        utterance.onend = () => setPlayingId(null);
+      }
+      utterance.onerror = () => setPlayingId(null);
+
+      window.speechSynthesis.speak(utterance);
+    });
   };
 
   const handleAnswerQuiz = (idx: number) => {
@@ -242,40 +326,43 @@ export const SanskritHub: React.FC<SanskritHubProps> = ({ onOpenAiModal }) => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         
         {/* Sanskrit Hero Banner */}
-        <div className="p-8 sm:p-12 rounded-3xl bg-gradient-to-br from-amber-950 via-indigo-950 to-slate-950 text-white shadow-2xl relative overflow-hidden space-y-6 border border-amber-500/30">
-          <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none text-9xl font-serif text-amber-300">
+        <div className="rounded-2xl bg-gradient-to-br from-[#102847] via-[#163c6b] to-[#1e4d87] text-white shadow-xl relative overflow-hidden border border-[#163c6b]">
+          <div className="h-1.5 w-full ebsb-tricolor-bar" />
+          <div className="p-8 sm:p-12 space-y-6 relative">
+          <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none text-9xl font-serif text-orange-200">
             संस्कृतम्
           </div>
 
           <div className="space-y-3 max-w-3xl relative z-10">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/30 text-xs font-bold uppercase tracking-wider">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#f26522]/20 text-orange-200 border border-[#f26522]/40 text-xs font-bold uppercase tracking-wider">
               <BookOpen className="w-3.5 h-3.5" />
               <span>Bhasha Sangam • Sanskrit Language & Heritage Hub</span>
             </div>
-            <h2 className="text-3xl sm:text-5xl font-black text-amber-100 tracking-tight leading-tight">
+            <h2 lang="sa" className="text-3xl sm:text-5xl font-serif font-bold text-white tracking-tight leading-snug">
               संस्कृत भाषा एवं भारतीय ज्ञान परम्परा
             </h2>
-            <p className="text-slate-300 text-sm sm:text-base font-medium leading-relaxed">
+            <p className="text-slate-200 text-sm sm:text-base font-medium leading-relaxed">
               Explore Sanskrit—the classical mother language of Indian civilization. Learn everyday conversation phrases, recite universal shlokas, and discover IIT Indore’s research in Indian Knowledge Systems (IKS).
             </p>
           </div>
 
-          <div className="pt-4 border-t border-amber-500/20 flex flex-wrap items-center justify-between gap-4 text-xs font-bold">
-            <div className="flex items-center gap-6 text-amber-200">
-              <span className="flex items-center gap-1.5"><Feather className="w-4 h-4 text-amber-400" /> Classical Mother Tongue</span>
-              <span className="flex items-center gap-1.5"><Shield className="w-4 h-4 text-emerald-400" /> Bhasha Sangam Recognized</span>
-              <span className="flex items-center gap-1.5"><Award className="w-4 h-4 text-indigo-400" /> IIT Indore IKS Research</span>
+          <div className="pt-4 border-t border-white/15 flex flex-wrap items-center justify-between gap-4 text-xs font-bold">
+            <div className="flex flex-wrap items-center gap-6 text-slate-200">
+              <span className="flex items-center gap-1.5"><Feather className="w-4 h-4 text-[#ff9933]" /> Classical Mother Tongue</span>
+              <span className="flex items-center gap-1.5"><Shield className="w-4 h-4 text-[#4ad178]" /> Bhasha Sangam Recognized</span>
+              <span className="flex items-center gap-1.5"><Award className="w-4 h-4 text-sky-300" /> IIT Indore IKS Research</span>
             </div>
 
             {onOpenAiModal && (
               <button
                 onClick={() => onOpenAiModal('assistant')}
-                className="px-5 py-2.5 rounded-full bg-amber-400 hover:bg-amber-300 text-slate-950 font-black transition-colors shadow-lg shadow-amber-400/20 flex items-center gap-2"
+                className="px-5 py-2.5 rounded-full bg-[#f26522] hover:bg-[#dc4f12] text-white font-black transition-colors shadow-lg flex items-center gap-2"
               >
                 <Sparkles className="w-4 h-4" />
                 <span>Ask AI Sanskrit Assistant</span>
               </button>
             )}
+          </div>
           </div>
         </div>
 
@@ -285,8 +372,8 @@ export const SanskritHub: React.FC<SanskritHubProps> = ({ onOpenAiModal }) => {
             onClick={() => setActiveTab('bhasha')}
             className={`px-6 py-3 rounded-full text-xs font-black transition-all ${
               activeTab === 'bhasha'
-                ? 'bg-amber-500 text-slate-950 shadow-md'
-                : 'bg-white/80 text-slate-700 hover:bg-white border border-slate-200'
+                ? 'bg-[#f26522] text-white shadow-sm'
+                : 'bg-white text-slate-700 hover:border-[#f26522] border border-slate-200'
             }`}
           >
             Everyday Conversation (Bhasha Sangam)
@@ -295,8 +382,8 @@ export const SanskritHub: React.FC<SanskritHubProps> = ({ onOpenAiModal }) => {
             onClick={() => setActiveTab('shlokas')}
             className={`px-6 py-3 rounded-full text-xs font-black transition-all ${
               activeTab === 'shlokas'
-                ? 'bg-amber-500 text-slate-950 shadow-md'
-                : 'bg-white/80 text-slate-700 hover:bg-white border border-slate-200'
+                ? 'bg-[#163c6b] text-white shadow-sm'
+                : 'bg-white text-slate-700 hover:border-[#163c6b] border border-slate-200'
             }`}
           >
             Classical Shlokas & Subhashitani
@@ -305,8 +392,8 @@ export const SanskritHub: React.FC<SanskritHubProps> = ({ onOpenAiModal }) => {
             onClick={() => setActiveTab('iks')}
             className={`px-6 py-3 rounded-full text-xs font-black transition-all ${
               activeTab === 'iks'
-                ? 'bg-amber-500 text-slate-950 shadow-md'
-                : 'bg-white/80 text-slate-700 hover:bg-white border border-slate-200'
+                ? 'bg-[#138808] text-white shadow-sm'
+                : 'bg-white text-slate-700 hover:border-[#138808] border border-slate-200'
             }`}
           >
             IIT Indore IKS & MP Heritage
@@ -315,8 +402,8 @@ export const SanskritHub: React.FC<SanskritHubProps> = ({ onOpenAiModal }) => {
             onClick={() => setActiveTab('quiz')}
             className={`px-6 py-3 rounded-full text-xs font-black transition-all ${
               activeTab === 'quiz'
-                ? 'bg-amber-500 text-slate-950 shadow-md'
-                : 'bg-white/80 text-slate-700 hover:bg-white border border-slate-200'
+                ? 'bg-[#f26522] text-white shadow-sm'
+                : 'bg-white text-slate-700 hover:border-[#f26522] border border-slate-200'
             }`}
           >
             Sanskrit Interactive Quiz
@@ -326,9 +413,9 @@ export const SanskritHub: React.FC<SanskritHubProps> = ({ onOpenAiModal }) => {
         {/* TAB 1: Bhasha Sangam Conversation Cards */}
         {activeTab === 'bhasha' && (
           <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-6 rounded-3xl bg-white/60 backdrop-blur-md border border-white/80 shadow-md">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-6 rounded-2xl bg-white border border-slate-200 shadow-sm">
               <div>
-                <h3 className="text-lg font-black text-indigo-950">
+                <h3 className="text-lg font-black text-[#163c6b]">
                   Everyday Sanskrit Sentences (संस्कृत सम्भाषणम्)
                 </h3>
                 <p className="text-xs text-slate-600 font-medium">
@@ -343,7 +430,7 @@ export const SanskritHub: React.FC<SanskritHubProps> = ({ onOpenAiModal }) => {
                   value={searchPhrase}
                   onChange={(e) => setSearchPhrase(e.target.value)}
                   placeholder="Search Sanskrit phrases..."
-                  className="w-full bg-white text-slate-900 text-xs pl-10 pr-4 py-2.5 rounded-full border border-slate-200 focus:outline-none focus:border-amber-500 shadow-xs font-medium"
+                  className="w-full bg-white text-slate-900 text-xs pl-10 pr-4 py-2.5 rounded-full border border-slate-300 focus:outline-none focus:border-[#f26522] shadow-xs font-medium"
                 />
               </div>
             </div>
@@ -352,19 +439,19 @@ export const SanskritHub: React.FC<SanskritHubProps> = ({ onOpenAiModal }) => {
               {filteredPhrases.map((phrase) => (
                 <div
                   key={phrase.id}
-                  className="p-6 rounded-3xl bg-white/70 backdrop-blur-md border border-white/90 hover:bg-white hover:border-amber-300 transition-all duration-300 shadow-xl space-y-4 flex flex-col justify-between"
+                  className="p-6 rounded-2xl bg-white border border-slate-200 hover:border-[#f26522] hover:shadow-md transition-all duration-300 shadow-sm space-y-4 flex flex-col justify-between"
                 >
                   <div className="space-y-2">
                     <div className="flex items-start justify-between gap-2">
-                      <span className="text-2xl font-bold text-amber-900 font-serif">
+                      <span lang="sa" className="text-2xl font-bold text-[#163c6b] font-serif leading-snug">
                         {phrase.sanskrit}
                       </span>
                       <button
-                        onClick={() => handleSpeak(phrase.sanskrit, phrase.id)}
+                        onClick={() => handleSpeak(phrase.sanskrit, phrase.transliteration, phrase.id)}
                         className={`p-2.5 rounded-full transition-colors ${
                           playingId === phrase.id
-                            ? 'bg-amber-500 text-slate-950 animate-bounce'
-                            : 'bg-amber-100 text-amber-900 hover:bg-amber-200'
+                            ? 'bg-[#f26522] text-white animate-bounce'
+                            : 'bg-[#fff2e6] text-[#b83d0d] hover:bg-[#f26522] hover:text-white'
                         }`}
                         title="Listen to Sanskrit audio pronunciation"
                       >
@@ -378,18 +465,18 @@ export const SanskritHub: React.FC<SanskritHubProps> = ({ onOpenAiModal }) => {
 
                     <div className="pt-2 border-t border-slate-100 grid grid-cols-2 gap-2 text-xs">
                       <div>
-                        <span className="text-[10px] uppercase font-extrabold text-indigo-900 block">English:</span>
+                        <span className="text-[10px] uppercase font-extrabold text-[#163c6b] block">English:</span>
                         <span className="font-bold text-slate-800">{phrase.english}</span>
                       </div>
                       <div>
-                        <span className="text-[10px] uppercase font-extrabold text-orange-900 block">Hindi:</span>
-                        <span className="font-bold text-slate-800">{phrase.hindi}</span>
+                        <span className="text-[10px] uppercase font-extrabold text-[#b83d0d] block">Hindi:</span>
+                        <span lang="hi" className="font-devanagari font-bold text-slate-800">{phrase.hindi}</span>
                       </div>
                     </div>
                   </div>
 
-                  <div className="text-[11px] text-slate-500 bg-amber-50/50 p-2.5 rounded-xl border border-amber-100 font-medium">
-                    💡 <span className="font-semibold text-amber-950">Context:</span> {phrase.context}
+                  <div className="text-[11px] text-slate-600 bg-[#f8f9fb] p-2.5 rounded-xl border border-slate-200 font-medium">
+                    <span className="font-semibold text-[#163c6b]">Context:</span> {phrase.context}
                   </div>
                 </div>
               ))}
@@ -401,7 +488,7 @@ export const SanskritHub: React.FC<SanskritHubProps> = ({ onOpenAiModal }) => {
         {activeTab === 'shlokas' && (
           <div className="space-y-8">
             <div className="text-center max-w-2xl mx-auto space-y-2">
-              <h3 className="text-2xl font-black text-indigo-950">
+              <h3 className="text-2xl font-black text-[#163c6b]">
                 Classical Subhashitani & Vedic Verses
               </h3>
               <p className="text-xs text-slate-600 font-medium">
@@ -413,29 +500,29 @@ export const SanskritHub: React.FC<SanskritHubProps> = ({ onOpenAiModal }) => {
               {SHLOKAS_DATA.map((sh) => (
                 <div
                   key={sh.id}
-                  className="p-8 rounded-3xl bg-gradient-to-br from-amber-50/90 via-white to-orange-50/80 border border-amber-200/80 shadow-xl space-y-6"
+                  className="p-8 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-6"
                 >
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-amber-200/60 pb-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 pb-3">
                     <div>
-                      <span className="text-[10px] font-black uppercase tracking-wider text-amber-800 bg-amber-100 px-3 py-1 rounded-full border border-amber-200">
+                      <span className="text-[10px] font-black uppercase tracking-wider text-[#b83d0d] bg-[#fff2e6] px-3 py-1 rounded-full border border-[#fed7ba]">
                         {sh.source}
                       </span>
-                      <h4 className="text-lg font-black text-indigo-950 mt-1">
+                      <h4 className="text-lg font-black text-[#163c6b] mt-1">
                         {sh.title}
                       </h4>
                     </div>
 
                     <button
-                      onClick={() => handleSpeak(sh.sanskrit, sh.id)}
-                      className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition-colors shadow-sm"
+                      onClick={() => handleSpeak(sh.sanskrit, sh.transliteration, sh.id)}
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#f26522] hover:bg-[#dc4f12] text-white font-bold text-xs transition-colors shadow-sm"
                     >
                       <Volume2 className="w-4 h-4" />
-                      <span>Recite Shloka</span>
+                      <span>{playingId === sh.id ? 'Stop Recitation' : 'Recite Shloka'}</span>
                     </button>
                   </div>
 
                   {/* Sanskrit Text */}
-                  <div className="text-xl sm:text-2xl font-bold text-amber-950 font-serif leading-relaxed text-center py-2 bg-amber-100/40 rounded-2xl border border-amber-200/50">
+                  <div lang="sa" className="text-xl sm:text-2xl font-bold text-[#102847] font-serif leading-loose text-center py-4 px-4 bg-[#fff6f0] rounded-xl border border-[#fed7ba]">
                     {sh.sanskrit}
                   </div>
 
@@ -444,13 +531,13 @@ export const SanskritHub: React.FC<SanskritHubProps> = ({ onOpenAiModal }) => {
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 text-xs">
-                    <div className="p-4 rounded-2xl bg-white border border-slate-200 space-y-1">
-                      <span className="font-black text-indigo-950 uppercase text-[10px]">English Translation:</span>
+                    <div className="p-4 rounded-xl bg-[#f8f9fb] border border-slate-200 space-y-1">
+                      <span className="font-black text-[#163c6b] uppercase text-[10px]">English Translation:</span>
                       <p className="text-slate-700 font-medium leading-relaxed">{sh.meaningEnglish}</p>
                     </div>
-                    <div className="p-4 rounded-2xl bg-white border border-slate-200 space-y-1">
-                      <span className="font-black text-orange-950 uppercase text-[10px]">Hindi Translation:</span>
-                      <p className="text-slate-700 font-medium leading-relaxed">{sh.meaningHindi}</p>
+                    <div className="p-4 rounded-xl bg-[#f8f9fb] border border-slate-200 space-y-1">
+                      <span className="font-black text-[#b83d0d] uppercase text-[10px]">Hindi Translation:</span>
+                      <p lang="hi" className="font-devanagari text-slate-700 font-medium leading-relaxed">{sh.meaningHindi}</p>
                     </div>
                   </div>
                 </div>
@@ -464,12 +551,12 @@ export const SanskritHub: React.FC<SanskritHubProps> = ({ onOpenAiModal }) => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
             
             {/* IIT Indore IKS */}
-            <div className="p-8 rounded-3xl bg-white/70 backdrop-blur-md border border-white/90 shadow-xl space-y-5 flex flex-col justify-between">
+            <div className="p-8 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-5 flex flex-col justify-between">
               <div className="space-y-4">
-                <div className="p-3.5 rounded-2xl bg-indigo-600 text-white w-fit shadow-md">
+                <div className="p-3.5 rounded-xl bg-[#163c6b] text-white w-fit shadow-sm">
                   <BookOpen className="w-6 h-6" />
                 </div>
-                <h3 className="text-2xl font-black text-indigo-950">
+                <h3 className="text-2xl font-black text-[#163c6b]">
                   Center for Indian Knowledge Systems (IKS) at IIT Indore
                 </h3>
                 <p className="text-xs text-slate-600 font-medium leading-relaxed">
@@ -478,40 +565,40 @@ export const SanskritHub: React.FC<SanskritHubProps> = ({ onOpenAiModal }) => {
 
                 <div className="space-y-2.5 pt-2 text-xs font-medium text-slate-700">
                   <div className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <CheckCircle2 className="w-4 h-4 text-[#138808] shrink-0" />
                     <span>Courses in Ancient Indian Science & Technology through Sanskrit texts.</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <CheckCircle2 className="w-4 h-4 text-[#138808] shrink-0" />
                     <span>Vedic Mathematics workshops for student delegations.</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <CheckCircle2 className="w-4 h-4 text-[#138808] shrink-0" />
                     <span>Translation of classical manuscripts into digital computational models.</span>
                   </div>
                 </div>
               </div>
 
-              <div className="p-4 rounded-2xl bg-indigo-50 border border-indigo-100 text-indigo-950 text-xs font-bold">
+              <div className="p-4 rounded-xl bg-[#f0f5fa] border border-[#d6e4f2] text-[#163c6b] text-xs font-bold">
                 🏛️ Located at Academic Block, IIT Indore Simrol Campus
               </div>
             </div>
 
             {/* MP Sanskrit Heritage - Kalidasa & Ujjain */}
-            <div className="p-8 rounded-3xl bg-gradient-to-br from-amber-500 via-orange-500 to-amber-600 text-slate-950 shadow-xl space-y-5 flex flex-col justify-between">
+            <div className="p-8 rounded-2xl bg-gradient-to-br from-[#dc4f12] via-[#f26522] to-[#b83d0d] text-white shadow-md space-y-5 flex flex-col justify-between">
               <div className="space-y-4">
-                <span className="text-[10px] font-black uppercase tracking-wider bg-slate-950 text-amber-300 px-3 py-1 rounded-full border border-slate-800">
+                <span className="text-[10px] font-black uppercase tracking-wider bg-[#102847] text-orange-200 px-3 py-1 rounded-full border border-white/15">
                   Madhya Pradesh Heritage
                 </span>
-                <h3 className="text-2xl font-black text-slate-950">
+                <h3 className="text-2xl font-black text-white">
                   Ujjain & Mahakavi Kalidasa Classical Legacy
                 </h3>
-                <p className="text-xs text-slate-950 font-semibold leading-relaxed">
+                <p className="text-xs text-white/95 font-semibold leading-relaxed">
                   Ujjain (Avantika), located near Indore, is world-famous as the literary cradle of Mahakavi Kalidasa, author of Meghadutam and Abhijñana Shakuntalam, and the seat of Maharishi Sandipani Ashram.
                 </p>
 
-                <div className="p-4 rounded-2xl bg-white/80 backdrop-blur-md text-slate-900 text-xs space-y-2 border border-white/90">
-                  <span className="font-extrabold text-orange-950 block">Key Cultural Points for EBSB Delegates:</span>
+                <div className="p-4 rounded-xl bg-white text-slate-900 text-xs space-y-2 border border-white">
+                  <span className="font-extrabold text-[#163c6b] block">Key Cultural Points for EBSB Delegates:</span>
                   <ul className="list-disc list-inside space-y-1 text-[11px] font-medium">
                     <li>Annual Akhil Bharatiya Kalidasa Samaroh in Ujjain.</li>
                     <li>Meghaduta’s poetic descriptions of the Malwa region & Vindhya mountains.</li>
@@ -520,7 +607,7 @@ export const SanskritHub: React.FC<SanskritHubProps> = ({ onOpenAiModal }) => {
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-slate-950/20 text-xs font-bold text-slate-950 flex justify-between items-center">
+              <div className="pt-4 border-t border-white/25 text-xs font-bold text-white flex justify-between items-center">
                 <span>EBSB Youth Heritage Trail</span>
                 <ChevronRight className="w-4 h-4" />
               </div>
@@ -530,11 +617,11 @@ export const SanskritHub: React.FC<SanskritHubProps> = ({ onOpenAiModal }) => {
 
         {/* TAB 4: Sanskrit Quiz */}
         {activeTab === 'quiz' && (
-          <div className="max-w-2xl mx-auto p-8 rounded-3xl bg-white/80 backdrop-blur-xl border border-white/90 shadow-2xl space-y-6">
+          <div className="max-w-2xl mx-auto p-8 rounded-2xl bg-white border border-slate-200 shadow-md space-y-6">
             {!quizFinished ? (
               <div className="space-y-6">
                 <div className="flex items-center justify-between border-b border-slate-200 pb-4">
-                  <span className="text-xs font-extrabold uppercase text-amber-800 bg-amber-100 px-3 py-1 rounded-full">
+                  <span className="text-xs font-extrabold uppercase text-[#b83d0d] bg-[#fff2e6] px-3 py-1 rounded-full border border-[#fed7ba]">
                     Sanskrit Knowledge Quiz • Question {quizIndex + 1} of {QUIZ_QUESTIONS.length}
                   </span>
                   <span className="text-xs font-bold text-slate-500">
@@ -542,7 +629,7 @@ export const SanskritHub: React.FC<SanskritHubProps> = ({ onOpenAiModal }) => {
                   </span>
                 </div>
 
-                <h3 className="text-lg font-black text-indigo-950">
+                <h3 className="text-lg font-black text-[#163c6b]">
                   {QUIZ_QUESTIONS[quizIndex].question}
                 </h3>
 
@@ -550,13 +637,13 @@ export const SanskritHub: React.FC<SanskritHubProps> = ({ onOpenAiModal }) => {
                   {QUIZ_QUESTIONS[quizIndex].options.map((option, idx) => {
                     const isSelected = selectedAnswer === idx;
                     const isCorrect = idx === QUIZ_QUESTIONS[quizIndex].correct;
-                    let btnStyle = 'bg-white hover:bg-slate-50 text-slate-800 border-slate-200';
+                    let btnStyle = 'bg-white hover:bg-[#fff6f0] hover:border-[#f26522] text-slate-800 border-slate-200';
 
                     if (selectedAnswer !== null) {
                       if (isCorrect) {
-                        btnStyle = 'bg-emerald-500 text-white border-emerald-600 font-bold';
+                        btnStyle = 'bg-[#138808] text-white border-[#0f7506] font-bold';
                       } else if (isSelected) {
-                        btnStyle = 'bg-rose-500 text-white border-rose-600 font-bold';
+                        btnStyle = 'bg-rose-600 text-white border-rose-700 font-bold';
                       }
                     }
 
@@ -565,7 +652,7 @@ export const SanskritHub: React.FC<SanskritHubProps> = ({ onOpenAiModal }) => {
                         key={idx}
                         onClick={() => handleAnswerQuiz(idx)}
                         disabled={selectedAnswer !== null}
-                        className={`w-full p-4 rounded-2xl text-xs font-semibold border text-left transition-all ${btnStyle}`}
+                        className={`w-full p-4 rounded-xl text-xs font-semibold border text-left transition-all ${btnStyle}`}
                       >
                         {option}
                       </button>
@@ -576,7 +663,7 @@ export const SanskritHub: React.FC<SanskritHubProps> = ({ onOpenAiModal }) => {
                 {selectedAnswer !== null && (
                   <button
                     onClick={handleNextQuiz}
-                    className="w-full py-3.5 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md transition-colors"
+                    className="w-full py-3.5 rounded-full bg-[#163c6b] hover:bg-[#102847] text-white font-bold text-xs shadow-sm transition-colors"
                   >
                     {quizIndex + 1 < QUIZ_QUESTIONS.length ? 'Next Question' : 'View Quiz Result'}
                   </button>
@@ -584,14 +671,14 @@ export const SanskritHub: React.FC<SanskritHubProps> = ({ onOpenAiModal }) => {
               </div>
             ) : (
               <div className="text-center py-6 space-y-4">
-                <Award className="w-16 h-16 text-amber-500 mx-auto" />
-                <h3 className="text-2xl font-black text-indigo-950">Quiz Completed!</h3>
+                <Award className="w-16 h-16 text-[#f26522] mx-auto" />
+                <h3 className="text-2xl font-black text-[#163c6b]">Quiz Completed!</h3>
                 <p className="text-sm font-bold text-slate-600">
                   You scored {score} out of {QUIZ_QUESTIONS.length} on Sanskrit & Bhasha Sangam heritage.
                 </p>
                 <button
                   onClick={handleResetQuiz}
-                  className="px-6 py-3 rounded-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs shadow-md transition-colors inline-flex items-center gap-2"
+                  className="px-6 py-3 rounded-full bg-[#f26522] hover:bg-[#dc4f12] text-white font-bold text-xs shadow-sm transition-colors inline-flex items-center gap-2"
                 >
                   <RefreshCw className="w-4 h-4" />
                   <span>Try Again</span>

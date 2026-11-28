@@ -198,10 +198,10 @@ export const CulturalMapSection: React.FC = () => {
         
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto space-y-3">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-orange-100 text-orange-800 border border-orange-200 text-xs font-bold uppercase tracking-wider shadow-sm">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#fff2e6] text-[#b83d0d] border border-[#fed7ba] text-xs font-bold uppercase tracking-wider shadow-xs">
             Interactive Cultural Cartography
           </div>
-          <h2 className="text-3xl sm:text-4xl font-black text-indigo-950 tracking-tight">
+          <h2 className="text-3xl sm:text-4xl font-black text-[#163c6b] tracking-tight">
             EBSB Cultural Map: MP ↔ Manipur ↔ Nagaland
           </h2>
           <p className="text-slate-600 text-sm sm:text-base font-medium leading-relaxed">
@@ -210,7 +210,7 @@ export const CulturalMapSection: React.FC = () => {
         </div>
 
         {/* Filter Controls Bar */}
-        <div className="p-6 rounded-3xl bg-white/60 backdrop-blur-md border border-white/80 shadow-xl space-y-6">
+        <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
             
             {/* Search Box */}
@@ -221,7 +221,7 @@ export const CulturalMapSection: React.FC = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search landmarks, festivals, dishes..."
-                className="w-full bg-white text-slate-900 text-xs sm:text-sm pl-11 pr-4 py-3 rounded-full border border-slate-200 focus:outline-none focus:border-indigo-600 shadow-sm font-medium"
+                className="w-full bg-white text-slate-900 text-xs sm:text-sm pl-11 pr-4 py-3 rounded-full border border-slate-300 focus:outline-none focus:border-[#f26522] shadow-xs font-medium"
               />
               {searchQuery && (
                 <button
@@ -244,8 +244,8 @@ export const CulturalMapSection: React.FC = () => {
                   onClick={() => setSelectedState(st)}
                   className={`px-4 py-2 rounded-full text-xs font-bold transition-all ${
                     selectedState === st
-                      ? 'bg-indigo-600 text-white shadow-md shadow-indigo-200'
-                      : 'bg-white/80 text-slate-700 hover:bg-white border border-slate-200'
+                      ? 'bg-[#163c6b] text-white shadow-sm'
+                      : 'bg-[#f8f9fb] text-slate-700 hover:bg-white hover:border-[#f26522] border border-slate-200'
                   }`}
                 >
                   {st === 'All' ? 'All Paired States' : st}
@@ -255,7 +255,7 @@ export const CulturalMapSection: React.FC = () => {
           </div>
 
           {/* Category Chips */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-2 pt-2 border-t border-slate-200/80 scrollbar-none">
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 pt-2 border-t border-slate-200 scrollbar-none">
             <span className="text-xs font-bold text-slate-500 uppercase tracking-wider shrink-0 pr-2">
               Category:
             </span>
@@ -265,8 +265,8 @@ export const CulturalMapSection: React.FC = () => {
                 onClick={() => setSelectedCategory(cat)}
                 className={`px-3.5 py-1.5 rounded-full text-[11px] font-extrabold whitespace-nowrap transition-all ${
                   selectedCategory === cat
-                    ? 'bg-orange-600 text-white shadow-sm'
-                    : 'bg-white/70 text-slate-600 hover:bg-white border border-slate-200/80'
+                    ? 'bg-[#f26522] text-white shadow-xs'
+                    : 'bg-[#f8f9fb] text-slate-600 hover:bg-white border border-slate-200'
                 }`}
               >
                 {cat}
@@ -276,30 +276,32 @@ export const CulturalMapSection: React.FC = () => {
         </div>
 
         {/* Visual Map Canvas Representation */}
-        <div className="p-6 sm:p-8 rounded-3xl bg-slate-900 text-white shadow-2xl relative overflow-hidden border border-slate-800 space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+        <div className="rounded-2xl bg-[#102847] text-white shadow-xl relative overflow-hidden border border-[#163c6b]">
+          <div className="h-1.5 w-full ebsb-tricolor-bar" />
+          <div className="p-6 sm:p-8 space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/15 pb-4">
             <div className="flex items-center gap-2">
-              <Compass className="w-5 h-5 text-amber-400 animate-spin" style={{ animationDuration: '12s' }} />
+              <Compass className="w-5 h-5 text-[#ff9933]" />
               <h3 className="text-base font-black text-white">Interactive State Geography Canvas</h3>
             </div>
-            <div className="flex items-center gap-4 text-xs text-slate-400">
-              <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-orange-500"></span> Madhya Pradesh (Host)</span>
-              <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Manipur (Paired)</span>
-              <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-indigo-500"></span> Nagaland (Paired)</span>
+            <div className="flex flex-wrap items-center gap-4 text-xs text-slate-200">
+              <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-[#f26522]"></span> Madhya Pradesh (Host)</span>
+              <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-[#138808]"></span> Manipur (Paired)</span>
+              <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-[#3d7ec7]"></span> Nagaland (Paired)</span>
             </div>
           </div>
 
           {/* Interactive Graphic Canvas Grid */}
-          <div className="relative min-h-[380px] sm:min-h-[460px] rounded-2xl bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950/80 border border-slate-800/80 overflow-hidden p-6 flex flex-col justify-between">
+          <div className="relative min-h-[380px] sm:min-h-[460px] rounded-2xl bg-gradient-to-br from-[#0c1f38] via-[#102847] to-[#163c6b] border border-white/15 overflow-hidden p-6 flex flex-col justify-between">
             
             {/* Background Map Stylized Outlines / Grid lines */}
             <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none" />
 
             {/* Region Labels */}
-            <div className="absolute top-6 left-8 bg-orange-950/60 border border-orange-500/30 px-3 py-1 rounded-lg text-[10px] font-bold text-orange-300">
+            <div className="absolute top-6 left-8 bg-[#f26522]/20 border border-[#f26522]/50 px-3 py-1 rounded-lg text-[10px] font-bold text-orange-200">
               Central India Corridor (Madhya Pradesh)
             </div>
-            <div className="absolute top-6 right-8 bg-indigo-950/60 border border-indigo-500/30 px-3 py-1 rounded-lg text-[10px] font-bold text-indigo-300">
+            <div className="absolute top-6 right-8 bg-[#138808]/25 border border-[#4ad178]/45 px-3 py-1 rounded-lg text-[10px] font-bold text-emerald-200">
               Northeast Frontier Corridor (Manipur & Nagaland)
             </div>
 
@@ -309,10 +311,10 @@ export const CulturalMapSection: React.FC = () => {
                 const isSelected = activeLandmark?.id === lm.id;
                 const pinColor =
                   lm.state === 'Madhya Pradesh'
-                    ? 'bg-orange-500 text-white'
+                    ? 'bg-[#f26522] text-white'
                     : lm.state === 'Manipur'
-                    ? 'bg-emerald-500 text-white'
-                    : 'bg-indigo-500 text-white';
+                    ? 'bg-[#138808] text-white'
+                    : 'bg-[#2a62a6] text-white';
 
                 return (
                   <div
@@ -322,12 +324,12 @@ export const CulturalMapSection: React.FC = () => {
                     onClick={() => setActiveLandmark(lm)}
                   >
                     <div className="relative flex flex-col items-center">
-                      <div className={`p-2 rounded-full ${pinColor} shadow-lg ring-4 ring-slate-900/80 flex items-center justify-center transition-all ${isSelected ? 'scale-125 ring-amber-400' : ''}`}>
+                      <div className={`p-2 rounded-full ${pinColor} shadow-lg ring-4 ring-[#0c1f38]/80 flex items-center justify-center transition-all ${isSelected ? 'scale-125 ring-[#ff9933]' : ''}`}>
                         <MapPin className="w-4 h-4" />
                       </div>
 
                       {/* Tooltip Label */}
-                      <div className="mt-1.5 px-2.5 py-1 rounded-md bg-slate-950/90 backdrop-blur-md text-white text-[10px] font-extrabold whitespace-nowrap border border-slate-700 shadow-md opacity-90 group-hover:opacity-100">
+                      <div className="mt-1.5 px-2.5 py-1 rounded-md bg-[#0c1f38]/95 text-white text-[10px] font-extrabold whitespace-nowrap border border-white/20 shadow-md opacity-90 group-hover:opacity-100">
                         {lm.name}
                       </div>
                     </div>
@@ -336,18 +338,19 @@ export const CulturalMapSection: React.FC = () => {
               })}
             </div>
 
-            <div className="relative z-10 text-[11px] text-slate-400 font-medium flex justify-between items-center bg-slate-950/60 p-3 rounded-xl border border-slate-800">
+            <div className="relative z-10 text-[11px] text-slate-200 font-medium flex justify-between items-center bg-[#0c1f38]/85 p-3 rounded-xl border border-white/15">
               <span>Showing {filteredLandmarks.length} cultural landmark pins</span>
-              <span className="text-amber-300 font-bold">Click any map pin to open landmark dossier</span>
+              <span className="text-[#ff9933] font-bold">Click any map pin to open landmark dossier</span>
             </div>
+          </div>
           </div>
         </div>
 
         {/* Landmarks Cards Grid */}
         <div className="space-y-6">
           <div className="flex items-center justify-between">
-            <h3 className="text-xl font-black text-indigo-950 flex items-center gap-2">
-              <Landmark className="w-5 h-5 text-indigo-600" />
+            <h3 className="text-xl font-black text-[#163c6b] flex items-center gap-2">
+              <Landmark className="w-5 h-5 text-[#f26522]" />
               <span>Cultural Landmarks & Exchange Hubs</span>
             </h3>
             <span className="text-xs text-slate-500 font-bold">
@@ -355,12 +358,12 @@ export const CulturalMapSection: React.FC = () => {
             </span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
             {filteredLandmarks.map((lm) => (
               <div
                 key={lm.id}
                 onClick={() => setActiveLandmark(lm)}
-                className="group rounded-3xl bg-white/50 backdrop-blur-md border border-white/80 hover:bg-white hover:border-indigo-300 transition-all duration-300 shadow-xl overflow-hidden cursor-pointer flex flex-col justify-between"
+                className="group rounded-2xl bg-white border border-slate-200 hover:border-[#f26522] hover:shadow-lg transition-all duration-300 shadow-sm overflow-hidden cursor-pointer flex flex-col justify-between"
               >
                 <div>
                   <div className="relative h-48 overflow-hidden bg-slate-200">
@@ -370,20 +373,20 @@ export const CulturalMapSection: React.FC = () => {
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       referrerPolicy="no-referrer"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-indigo-950/80 via-transparent to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#102847]/85 via-transparent to-transparent" />
 
-                    <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-md text-indigo-950 font-black text-[10px] uppercase px-3 py-1 rounded-full shadow-md">
+                    <div className="absolute top-3 left-3 bg-white/95 text-[#163c6b] font-black text-[10px] uppercase px-3 py-1 rounded-full shadow-sm">
                       {lm.state}
                     </div>
 
-                    <div className="absolute top-3 right-3 bg-indigo-600 text-white font-bold text-[10px] uppercase px-2.5 py-1 rounded-full shadow-md">
+                    <div className="absolute top-3 right-3 bg-[#f26522] text-white font-bold text-[10px] uppercase px-2.5 py-1 rounded-full shadow-sm">
                       {lm.category}
                     </div>
 
                     <div className="absolute bottom-3 left-3 right-3 text-white">
                       <h4 className="text-base font-black truncate">{lm.name}</h4>
                       <p className="text-[11px] text-slate-200 flex items-center gap-1">
-                        <MapPin className="w-3 h-3 text-amber-300 shrink-0" />
+                        <MapPin className="w-3 h-3 text-[#ff9933] shrink-0" />
                         <span>{lm.location}</span>
                       </p>
                     </div>
@@ -405,7 +408,7 @@ export const CulturalMapSection: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="p-5 pt-0 flex items-center justify-between text-xs font-bold text-indigo-600 group-hover:text-indigo-800 border-t border-slate-100 mt-2">
+                <div className="p-5 pt-3 flex items-center justify-between text-xs font-bold text-[#f26522] group-hover:text-[#dc4f12] border-t border-slate-100 mt-2">
                   <span>View Full Details</span>
                   <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </div>
@@ -416,8 +419,10 @@ export const CulturalMapSection: React.FC = () => {
 
         {/* Detailed Modal for Selected Landmark */}
         {activeLandmark && (
-          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
-            <div className="bg-white/95 backdrop-blur-2xl border border-white/80 rounded-3xl max-w-2xl w-full p-6 sm:p-8 space-y-6 relative shadow-2xl text-slate-900">
+          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+            <div className="bg-white border border-slate-200 rounded-2xl max-w-2xl w-full overflow-hidden relative shadow-2xl text-slate-900">
+              <div className="h-1.5 w-full ebsb-tricolor-bar" />
+              <div className="p-6 sm:p-8 space-y-6 relative">
               <button
                 onClick={() => setActiveLandmark(null)}
                 className="absolute top-4 right-4 p-2 rounded-full bg-slate-100 text-slate-600 hover:text-slate-900"
@@ -425,26 +430,26 @@ export const CulturalMapSection: React.FC = () => {
                 <X className="w-5 h-5" />
               </button>
 
-              <div className="relative h-64 sm:h-72 rounded-2xl overflow-hidden bg-slate-200">
+              <div className="relative h-64 sm:h-72 rounded-xl overflow-hidden bg-slate-200">
                 <img
                   src={activeLandmark.image}
                   alt={activeLandmark.name}
                   className="w-full h-full object-cover"
                   referrerPolicy="no-referrer"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#102847]/85 via-transparent to-transparent" />
                 <div className="absolute bottom-4 left-4 right-4 text-white">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="bg-orange-500 text-white text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full">
+                    <span className="bg-[#f26522] text-white text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full">
                       {activeLandmark.state}
                     </span>
-                    <span className="bg-indigo-600 text-white text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full">
+                    <span className="bg-[#163c6b] text-white text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full">
                       {activeLandmark.category}
                     </span>
                   </div>
                   <h3 className="text-2xl font-black">{activeLandmark.name}</h3>
                   <p className="text-xs text-slate-200 flex items-center gap-1 mt-0.5">
-                    <MapPin className="w-3.5 h-3.5 text-amber-300" />
+                    <MapPin className="w-3.5 h-3.5 text-[#ff9933]" />
                     <span>{activeLandmark.location}</span>
                   </p>
                 </div>
@@ -452,31 +457,31 @@ export const CulturalMapSection: React.FC = () => {
 
               <div className="space-y-4 text-xs sm:text-sm font-medium text-slate-700">
                 <div>
-                  <h4 className="font-extrabold text-indigo-950 uppercase tracking-wider text-[11px] mb-1">
+                  <h4 className="font-extrabold text-[#163c6b] uppercase tracking-wider text-[11px] mb-1">
                     Overview & Description
                   </h4>
                   <p className="leading-relaxed text-slate-600">{activeLandmark.description}</p>
                 </div>
 
-                <div className="p-4 rounded-2xl bg-indigo-50 border border-indigo-100 text-indigo-950 space-y-1">
-                  <h4 className="font-black text-indigo-900 text-xs">EBSB National Integration Relevance</h4>
+                <div className="p-4 rounded-xl bg-[#f0f5fa] border border-[#d6e4f2] text-[#163c6b] space-y-1">
+                  <h4 className="font-black text-[#163c6b] text-xs">EBSB National Integration Relevance</h4>
                   <p className="text-xs text-slate-700 leading-relaxed">{activeLandmark.ebsbHighlights}</p>
                 </div>
 
                 <div>
-                  <h4 className="font-extrabold text-indigo-950 uppercase tracking-wider text-[11px] mb-1">
+                  <h4 className="font-extrabold text-[#163c6b] uppercase tracking-wider text-[11px] mb-1">
                     Historical & Cultural Significance
                   </h4>
                   <p className="leading-relaxed text-slate-600">{activeLandmark.historicalSignificance}</p>
                 </div>
 
                 <div>
-                  <h4 className="font-extrabold text-indigo-950 uppercase tracking-wider text-[11px] mb-2">
+                  <h4 className="font-extrabold text-[#163c6b] uppercase tracking-wider text-[11px] mb-2">
                     Key Attractions & Highlights
                   </h4>
                   <div className="flex flex-wrap gap-2">
                     {activeLandmark.keyAttractions.map((att, idx) => (
-                      <span key={idx} className="px-3 py-1 rounded-full bg-slate-100 text-slate-800 font-bold text-xs border border-slate-200">
+                      <span key={idx} className="px-3 py-1 rounded-full bg-[#f8f9fb] text-slate-800 font-bold text-xs border border-slate-200">
                         • {att}
                       </span>
                     ))}
@@ -490,10 +495,11 @@ export const CulturalMapSection: React.FC = () => {
                 </span>
                 <button
                   onClick={() => setActiveLandmark(null)}
-                  className="px-6 py-2.5 rounded-full bg-indigo-600 text-white font-bold text-xs hover:bg-indigo-700 transition-colors shadow-md"
+                  className="px-6 py-2.5 rounded-full bg-[#f26522] text-white font-bold text-xs hover:bg-[#dc4f12] transition-colors shadow-sm"
                 >
                   Close Dossier
                 </button>
+              </div>
               </div>
             </div>
           </div>

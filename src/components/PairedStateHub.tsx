@@ -14,17 +14,17 @@ export const PairedStateHub: React.FC<PairedStateHubProps> = ({ onOpenAiModal })
   const activeState = PAIRED_STATES_DATA.find((s) => s.id === selectedStateId) || PAIRED_STATES_DATA[0];
 
   return (
-    <section id="paired-states" className="py-16 sm:py-24 text-slate-900 relative border-b border-white/40">
+    <section id="paired-states" className="py-16 sm:py-24 text-slate-900 relative border-b border-slate-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Title */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-8 border-b border-white/40">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-8 border-b border-slate-200">
           <div className="space-y-3 max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-orange-100 text-orange-800 border border-orange-200 text-xs font-bold uppercase tracking-wider shadow-sm">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#fff2e6] text-[#b83d0d] border border-[#fed7ba] text-xs font-bold uppercase tracking-wider shadow-xs">
               State Pairing Spotlight
             </div>
-            <h2 className="text-3xl sm:text-4xl font-black text-indigo-950 tracking-tight">
-              Madhya Pradesh <span className="text-orange-500">↔</span> Manipur & Nagaland
+            <h2 className="text-3xl sm:text-4xl font-black text-[#163c6b] tracking-tight">
+              Madhya Pradesh <span className="text-[#f26522]">↔</span> Manipur & Nagaland
             </h2>
             <p className="text-slate-600 text-sm sm:text-base font-medium">
               Discover the vibrant synthesis of Central India’s UNESCO heritage and North-East India’s enchanted hills, indigenous folk traditions, and culinary arts.
@@ -32,11 +32,11 @@ export const PairedStateHub: React.FC<PairedStateHubProps> = ({ onOpenAiModal })
           </div>
 
           {/* Toggle View Mode */}
-          <div className="flex items-center gap-2 bg-white/40 backdrop-blur-md p-1.5 rounded-full border border-white/60 shadow-sm self-start md:self-auto">
+          <div className="flex items-center gap-2 bg-white p-1.5 rounded-full border border-slate-200 shadow-sm self-start md:self-auto">
             <button
               onClick={() => setCompareMode(false)}
               className={`px-5 py-2 rounded-full text-xs font-bold transition-all ${
-                !compareMode ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-700 hover:text-indigo-950'
+                !compareMode ? 'bg-[#f26522] text-white shadow-sm' : 'text-slate-700 hover:text-[#163c6b]'
               }`}
             >
               State Profiles
@@ -44,7 +44,7 @@ export const PairedStateHub: React.FC<PairedStateHubProps> = ({ onOpenAiModal })
             <button
               onClick={() => setCompareMode(true)}
               className={`px-5 py-2 rounded-full text-xs font-bold transition-all ${
-                compareMode ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-700 hover:text-indigo-950'
+                compareMode ? 'bg-[#f26522] text-white shadow-sm' : 'text-slate-700 hover:text-[#163c6b]'
               }`}
             >
               Side-by-Side Comparison
@@ -66,13 +66,13 @@ export const PairedStateHub: React.FC<PairedStateHubProps> = ({ onOpenAiModal })
                     onClick={() => setSelectedStateId(state.id)}
                     className={`flex items-center gap-3 px-6 py-3 rounded-full text-sm font-bold transition-all ${
                       isSelected
-                        ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200'
-                        : 'bg-white/50 backdrop-blur-md text-slate-700 hover:bg-white/80 border border-white/60'
+                        ? 'bg-[#163c6b] text-white shadow-md'
+                        : 'bg-white text-slate-700 hover:border-[#f26522] border border-slate-200 shadow-xs'
                     }`}
                   >
                     <span>{state.name}</span>
                     <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-extrabold uppercase ${
-                      isSelected ? 'bg-white/20 text-white' : 'bg-orange-100 text-orange-800'
+                      isSelected ? 'bg-[#f26522] text-white' : 'bg-[#fff2e6] text-[#b83d0d]'
                     }`}>
                       {state.type}
                     </span>
@@ -82,7 +82,8 @@ export const PairedStateHub: React.FC<PairedStateHubProps> = ({ onOpenAiModal })
             </div>
 
             {/* Selected State Showcase Card */}
-            <div className="rounded-3xl bg-white/40 backdrop-blur-md border border-white/50 overflow-hidden shadow-2xl">
+            <div className="rounded-2xl bg-white border border-slate-200 overflow-hidden shadow-md">
+              <div className="h-1.5 w-full ebsb-tricolor-bar" />
               <div className="grid grid-cols-1 lg:grid-cols-12">
                 
                 {/* Left Visual Column */}
@@ -93,12 +94,19 @@ export const PairedStateHub: React.FC<PairedStateHubProps> = ({ onOpenAiModal })
                     className="w-full h-full object-cover"
                     referrerPolicy="no-referrer"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-indigo-950/80 via-transparent to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#102847]/85 via-transparent to-transparent" />
                   
                   {/* Floating Greeting Tag */}
-                  <div className="absolute bottom-6 left-6 right-6 p-4 rounded-2xl bg-white/80 backdrop-blur-md border border-white/80 shadow-xl text-indigo-950">
-                    <div className="text-[10px] uppercase font-bold text-orange-600">Native Greeting ({activeState.greetingLanguage})</div>
-                    <div className="text-xl font-black mt-0.5">{activeState.greetingText}</div>
+                  <div className="absolute bottom-6 left-6 right-6 p-4 rounded-xl bg-white/95 border border-slate-200 shadow-lg text-[#163c6b]">
+                    <div className="text-[10px] uppercase font-bold text-[#f26522]">Native Greeting ({activeState.greetingLanguage})</div>
+                    <div
+                      lang={activeState.id === 'mp' ? 'hi' : activeState.id === 'manipur' ? 'bn' : 'en'}
+                      className={`text-xl font-bold mt-0.5 leading-snug ${
+                        activeState.id === 'mp' ? 'font-devanagari' : activeState.id === 'manipur' ? 'font-bengali' : ''
+                      }`}
+                    >
+                      {activeState.greetingText}
+                    </div>
                     <div className="text-xs text-slate-600 font-semibold mt-1">Capital: {activeState.capital}</div>
                   </div>
                 </div>
@@ -123,10 +131,10 @@ export const PairedStateHub: React.FC<PairedStateHubProps> = ({ onOpenAiModal })
                   </p>
 
                   {/* Fun Fact Callout */}
-                  <div className="p-4 rounded-2xl bg-orange-100/80 border border-orange-200 text-xs text-orange-900 flex items-start gap-3 shadow-sm">
-                    <Info className="w-5 h-5 text-orange-600 shrink-0 mt-0.5" />
+                  <div className="p-4 rounded-xl bg-[#fff6f0] border border-[#fed7ba] text-xs text-slate-800 flex items-start gap-3">
+                    <Info className="w-5 h-5 text-[#f26522] shrink-0 mt-0.5" />
                     <div>
-                      <span className="font-bold text-orange-800 block mb-0.5">Did You Know?</span>
+                      <span className="font-bold text-[#b83d0d] block mb-0.5">Did You Know?</span>
                       {activeState.funFact}
                     </div>
                   </div>
@@ -135,14 +143,14 @@ export const PairedStateHub: React.FC<PairedStateHubProps> = ({ onOpenAiModal })
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs pt-2">
                     
                     {/* Festivals */}
-                    <div className="p-4 rounded-2xl bg-white/60 backdrop-blur-sm border border-white/80 space-y-2 shadow-sm">
-                      <div className="flex items-center gap-2 font-bold text-indigo-950">
-                        <Calendar className="w-4 h-4 text-indigo-600" />
+                    <div className="p-4 rounded-xl bg-[#f8f9fb] border border-slate-200 space-y-2">
+                      <div className="flex items-center gap-2 font-bold text-[#163c6b]">
+                        <Calendar className="w-4 h-4 text-[#163c6b]" />
                         <span>Major Festivals</span>
                       </div>
                       <div className="flex flex-wrap gap-1.5">
                         {activeState.majorFestivals.map((fest, idx) => (
-                          <span key={idx} className="bg-indigo-50 text-indigo-800 px-2.5 py-1 rounded-full text-[11px] font-semibold border border-indigo-100">
+                          <span key={idx} className="bg-white text-[#163c6b] px-2.5 py-1 rounded-full text-[11px] font-semibold border border-slate-200">
                             {fest}
                           </span>
                         ))}
@@ -150,14 +158,14 @@ export const PairedStateHub: React.FC<PairedStateHubProps> = ({ onOpenAiModal })
                     </div>
 
                     {/* Dance Forms */}
-                    <div className="p-4 rounded-2xl bg-white/60 backdrop-blur-sm border border-white/80 space-y-2 shadow-sm">
-                      <div className="flex items-center gap-2 font-bold text-indigo-950">
-                        <Music className="w-4 h-4 text-orange-600" />
+                    <div className="p-4 rounded-xl bg-[#f8f9fb] border border-slate-200 space-y-2">
+                      <div className="flex items-center gap-2 font-bold text-[#163c6b]">
+                        <Music className="w-4 h-4 text-[#f26522]" />
                         <span>Dance & Folk Arts</span>
                       </div>
                       <div className="flex flex-wrap gap-1.5">
                         {activeState.danceForms.map((dance, idx) => (
-                          <span key={idx} className="bg-orange-50 text-orange-800 px-2.5 py-1 rounded-full text-[11px] font-semibold border border-orange-100">
+                          <span key={idx} className="bg-[#fff6f0] text-[#b83d0d] px-2.5 py-1 rounded-full text-[11px] font-semibold border border-[#fed7ba]">
                             {dance}
                           </span>
                         ))}
@@ -165,14 +173,14 @@ export const PairedStateHub: React.FC<PairedStateHubProps> = ({ onOpenAiModal })
                     </div>
 
                     {/* Cuisine */}
-                    <div className="p-4 rounded-2xl bg-white/60 backdrop-blur-sm border border-white/80 space-y-2 shadow-sm">
-                      <div className="flex items-center gap-2 font-bold text-indigo-950">
-                        <Utensils className="w-4 h-4 text-rose-600" />
+                    <div className="p-4 rounded-xl bg-[#f8f9fb] border border-slate-200 space-y-2">
+                      <div className="flex items-center gap-2 font-bold text-[#163c6b]">
+                        <Utensils className="w-4 h-4 text-[#f26522]" />
                         <span>Signature Cuisine</span>
                       </div>
                       <div className="flex flex-wrap gap-1.5">
                         {activeState.cuisine.map((food, idx) => (
-                          <span key={idx} className="bg-rose-50 text-rose-800 px-2.5 py-1 rounded-full text-[11px] font-semibold border border-rose-100">
+                          <span key={idx} className="bg-[#fff6f0] text-[#b83d0d] px-2.5 py-1 rounded-full text-[11px] font-semibold border border-[#fed7ba]">
                             {food}
                           </span>
                         ))}
@@ -180,14 +188,14 @@ export const PairedStateHub: React.FC<PairedStateHubProps> = ({ onOpenAiModal })
                     </div>
 
                     {/* Heritage Sites */}
-                    <div className="p-4 rounded-2xl bg-white/60 backdrop-blur-sm border border-white/80 space-y-2 shadow-sm">
-                      <div className="flex items-center gap-2 font-bold text-indigo-950">
-                        <Landmark className="w-4 h-4 text-emerald-600" />
+                    <div className="p-4 rounded-xl bg-[#f8f9fb] border border-slate-200 space-y-2">
+                      <div className="flex items-center gap-2 font-bold text-[#163c6b]">
+                        <Landmark className="w-4 h-4 text-[#138808]" />
                         <span>Heritage Landmarks</span>
                       </div>
                       <div className="flex flex-wrap gap-1.5">
                         {activeState.heritageSites.map((site, idx) => (
-                          <span key={idx} className="bg-emerald-50 text-emerald-800 px-2.5 py-1 rounded-full text-[11px] font-semibold border border-emerald-100">
+                          <span key={idx} className="bg-[#eefaf2] text-[#0f7506] px-2.5 py-1 rounded-full text-[11px] font-semibold border border-[#c6eccf]">
                             {site}
                           </span>
                         ))}
@@ -200,9 +208,9 @@ export const PairedStateHub: React.FC<PairedStateHubProps> = ({ onOpenAiModal })
                   <div className="pt-2">
                     <button
                       onClick={() => onOpenAiModal('assistant', `Tell me more about traditional crafts and culture of ${activeState.name}`)}
-                      className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all shadow-md shadow-indigo-200"
+                      className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#f26522] hover:bg-[#dc4f12] text-white text-xs font-bold transition-all shadow-sm"
                     >
-                      <Sparkles className="w-4 h-4 text-amber-200" />
+                      <Sparkles className="w-4 h-4 text-orange-100" />
                       <span>Ask AI Guide about {activeState.name} Culture</span>
                       <ChevronRight className="w-4 h-4" />
                     </button>
@@ -216,26 +224,26 @@ export const PairedStateHub: React.FC<PairedStateHubProps> = ({ onOpenAiModal })
           </div>
         ) : (
           /* Mode 2: Side-by-Side Comparison Table */
-          <div className="mt-8 overflow-x-auto rounded-3xl border border-white/60 shadow-xl bg-white/40 backdrop-blur-md p-4">
+          <div className="mt-8 overflow-x-auto rounded-2xl border border-slate-200 shadow-md bg-white p-4">
             <table className="w-full text-left border-collapse min-w-[700px]">
               <thead>
-                <tr className="bg-indigo-950 text-white text-xs font-bold uppercase tracking-wider rounded-2xl">
-                  <th className="p-4 w-1/4 rounded-l-2xl">Cultural Domain</th>
+                <tr className="bg-[#163c6b] text-white text-xs font-bold uppercase tracking-wider">
+                  <th className="p-4 w-1/4 rounded-l-xl">Cultural Domain</th>
                   {PAIRED_STATES_DATA.map((st, i) => (
-                    <th key={st.id} className={`p-4 w-1/4 ${i === PAIRED_STATES_DATA.length - 1 ? 'rounded-r-2xl' : ''}`}>
+                    <th key={st.id} className={`p-4 w-1/4 ${i === PAIRED_STATES_DATA.length - 1 ? 'rounded-r-xl' : ''}`}>
                       <div className="text-sm font-black text-white">{st.name}</div>
-                      <div className="text-[10px] text-orange-300 font-bold">{st.type}</div>
+                      <div className="text-[10px] text-[#ff9933] font-bold">{st.type}</div>
                     </th>
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/60 text-xs text-slate-700 font-medium">
+              <tbody className="divide-y divide-slate-200 text-xs text-slate-700 font-medium">
                 
                 {/* Greeting */}
                 <tr>
-                  <td className="p-4 font-bold text-indigo-950 bg-white/50">Greeting</td>
+                  <td className="p-4 font-bold text-[#163c6b] bg-[#f8f9fb]">Greeting</td>
                   {PAIRED_STATES_DATA.map((st) => (
-                    <td key={st.id} className="p-4 font-bold text-indigo-900">
+                    <td key={st.id} className="p-4 font-bold text-[#163c6b]">
                       {st.greetingText} <span className="text-slate-500 font-medium text-[11px]">({st.greetingLanguage})</span>
                     </td>
                   ))}
@@ -243,7 +251,7 @@ export const PairedStateHub: React.FC<PairedStateHubProps> = ({ onOpenAiModal })
 
                 {/* Major Festivals */}
                 <tr>
-                  <td className="p-4 font-bold text-indigo-950 bg-white/50">Festivals</td>
+                  <td className="p-4 font-bold text-[#163c6b] bg-[#f8f9fb]">Festivals</td>
                   {PAIRED_STATES_DATA.map((st) => (
                     <td key={st.id} className="p-4">
                       <ul className="list-disc list-inside space-y-1 text-slate-700">
@@ -255,7 +263,7 @@ export const PairedStateHub: React.FC<PairedStateHubProps> = ({ onOpenAiModal })
 
                 {/* Dance Forms */}
                 <tr>
-                  <td className="p-4 font-bold text-indigo-950 bg-white/50">Dance & Folk Arts</td>
+                  <td className="p-4 font-bold text-[#163c6b] bg-[#f8f9fb]">Dance & Folk Arts</td>
                   {PAIRED_STATES_DATA.map((st) => (
                     <td key={st.id} className="p-4">
                       <ul className="list-disc list-inside space-y-1 text-slate-700">
@@ -267,7 +275,7 @@ export const PairedStateHub: React.FC<PairedStateHubProps> = ({ onOpenAiModal })
 
                 {/* Cuisine */}
                 <tr>
-                  <td className="p-4 font-bold text-indigo-950 bg-white/50">Signature Gastronomy</td>
+                  <td className="p-4 font-bold text-[#163c6b] bg-[#f8f9fb]">Signature Gastronomy</td>
                   {PAIRED_STATES_DATA.map((st) => (
                     <td key={st.id} className="p-4">
                       <ul className="list-disc list-inside space-y-1 text-slate-700">
@@ -279,7 +287,7 @@ export const PairedStateHub: React.FC<PairedStateHubProps> = ({ onOpenAiModal })
 
                 {/* Heritage Landmarks */}
                 <tr>
-                  <td className="p-4 font-bold text-indigo-950 bg-white/50">Heritage Landmarks</td>
+                  <td className="p-4 font-bold text-[#163c6b] bg-[#f8f9fb]">Heritage Landmarks</td>
                   {PAIRED_STATES_DATA.map((st) => (
                     <td key={st.id} className="p-4">
                       <ul className="list-disc list-inside space-y-1 text-slate-700">

@@ -1,51 +1,146 @@
 @import "tailwindcss";
 
+@theme {
+  /* Multilingual Typography: English (Plus Jakarta Sans) + Devanagari (Noto) + Bengali/Manipuri (Noto) */
+  --font-sans: "Plus Jakarta Sans", "Noto Sans Devanagari", "Noto Sans Bengali", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Noto Serif Devanagari", "Noto Serif Bengali", Georgia, Cambria, serif;
+  --font-devanagari: "Noto Sans Devanagari", "Plus Jakarta Sans", sans-serif;
+  --font-bengali: "Noto Sans Bengali", "Plus Jakarta Sans", sans-serif;
+
+  /* Official ekbharat.gov.in Theme Palette:
+     Primary Vibrant EBSB Saffron (#F26522), Ashoka Government Navy (#163C6B), National India Green (#138808) */
+  --color-iiti-50: #f0f5fa;
+  --color-iiti-100: #dce7f3;
+  --color-iiti-200: #bcd2ea;
+  --color-iiti-300: #8eb2dc;
+  --color-iiti-400: #5a8bc9;
+  --color-iiti-500: #2b5fa3;
+  --color-iiti-600: #163c6b;
+  --color-iiti-700: #133158;
+  --color-iiti-800: #102847;
+  --color-iiti-900: #0c1f38;
+  --color-iiti-950: #081527;
+
+  --color-saffron-50: #fff6f0;
+  --color-saffron-100: #ffe9db;
+  --color-saffron-200: #ffd0b5;
+  --color-saffron-300: #ffae82;
+  --color-saffron-400: #fa8344;
+  --color-saffron-500: #f26522;
+  --color-saffron-600: #dc4f12;
+  --color-saffron-700: #b83d0d;
+  --color-saffron-800: #933212;
+  --color-saffron-900: #772b12;
+  --color-saffron-950: #401306;
+
+  --color-ebsb-green-50: #eefaf2;
+  --color-ebsb-green-100: #d4f3de;
+  --color-ebsb-green-200: #abe7bf;
+  --color-ebsb-green-300: #74d498;
+  --color-ebsb-green-400: #3bb96c;
+  --color-ebsb-green-500: #138808;
+  --color-ebsb-green-600: #0f7506;
+  --color-ebsb-green-700: #0c5d06;
+  --color-ebsb-green-800: #0c4a08;
+  --color-ebsb-green-900: #0a3d08;
+  --color-ebsb-green-950: #042103;
+
+  /* Map default indigo -> Government Ashoka Navy, orange -> ekbharat.gov.in Saffron, emerald -> India Green */
+  --color-indigo-50: #f0f5fa;
+  --color-indigo-100: #dce7f3;
+  --color-indigo-200: #bcd2ea;
+  --color-indigo-300: #8eb2dc;
+  --color-indigo-400: #5a8bc9;
+  --color-indigo-500: #2b5fa3;
+  --color-indigo-600: #163c6b;
+  --color-indigo-700: #133158;
+  --color-indigo-800: #102847;
+  --color-indigo-900: #0c1f38;
+  --color-indigo-950: #081527;
+
+  --color-orange-50: #fff6f0;
+  --color-orange-100: #ffe9db;
+  --color-orange-200: #ffd0b5;
+  --color-orange-300: #ffae82;
+  --color-orange-400: #fa8344;
+  --color-orange-500: #f26522;
+  --color-orange-600: #dc4f12;
+  --color-orange-700: #b83d0d;
+  --color-orange-800: #933212;
+  --color-orange-900: #772b12;
+  --color-orange-950: #401306;
+
+  --color-emerald-50: #eefaf2;
+  --color-emerald-100: #d4f3de;
+  --color-emerald-200: #abe7bf;
+  --color-emerald-300: #74d498;
+  --color-emerald-400: #3bb96c;
+  --color-emerald-500: #138808;
+  --color-emerald-600: #0f7506;
+  --color-emerald-700: #0c5d06;
+  --color-emerald-800: #0c4a08;
+  --color-emerald-900: #0a3d08;
+  --color-emerald-950: #042103;
+}
+
 @layer utilities {
+  /* Crisp ekbharat.gov.in Official Portal Canvas (clean white + subtle warm cultural paper tint) */
   .frosted-bg {
-    background: radial-gradient(circle at 0% 0%, rgba(255, 153, 51, 0.25) 0%, transparent 45%),
-                radial-gradient(circle at 100% 0%, rgba(19, 136, 8, 0.2) 0%, transparent 45%),
-                radial-gradient(circle at 50% 50%, #ffffff 0%, #f1f5f9 100%);
+    background: linear-gradient(180deg, #fffaf5 0%, #ffffff 28%, #f8f9fb 70%, #ffffff 100%);
   }
 
   .frosted-bg-dark {
-    background: radial-gradient(circle at 0% 0%, rgba(255, 153, 51, 0.2) 0%, transparent 45%),
-                radial-gradient(circle at 100% 0%, rgba(19, 136, 8, 0.15) 0%, transparent 45%),
-                radial-gradient(circle at 50% 50%, #0f172a 0%, #020617 100%);
+    background: linear-gradient(180deg, #163c6b 0%, #0c1f38 100%);
+  }
+
+  /* Signature National Tricolor Accent Band (ekbharat.gov.in style) */
+  .ebsb-tricolor-bar {
+    background: linear-gradient(90deg, #ff9933 0%, #ff9933 33.33%, #ffffff 33.33%, #ffffff 66.66%, #138808 66.66%, #138808 100%);
+  }
+
+  .ebsb-portal-bar {
+    background: linear-gradient(90deg, #f26522 0%, #f26522 50%, #163c6b 50%, #163c6b 75%, #138808 75%, #138808 100%);
   }
 
   .glass-card {
-    background: rgba(255, 255, 255, 0.65);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.7);
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05);
   }
 
   .glass-card-dark {
-    background: rgba(15, 23, 42, 0.65);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: #102847;
+    border: 1px solid rgba(255, 255, 255, 0.14);
   }
 
   .glass-nav {
-    background: rgba(255, 255, 255, 0.75);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+    background: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
   }
 }
 
-/* Custom scrollbar styling for frosted look */
+@layer base {
+  html,
+  body {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-color: #ffffff;
+    color: #1f2937;
+  }
+}
+
+/* Custom scrollbar styling matching ekbharat.gov.in Saffron */
 ::-webkit-scrollbar {
   width: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: rgba(241, 245, 249, 0.5);
+  background: #f3f4f6;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(79, 70, 229, 0.3);
+  background: rgba(242, 101, 34, 0.45);
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(79, 70, 229, 0.6);
+  background: #dc4f12;
 }

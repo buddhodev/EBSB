@@ -106,16 +106,16 @@ export const PageAudioNarrator: React.FC<PageAudioNarratorProps> = ({
   }
 
   return (
-    <div className={`inline-flex items-center gap-1.5 p-1 px-3 rounded-full bg-indigo-900/90 text-white border border-indigo-700/50 text-xs shadow-sm ${className}`}>
-      <span className="flex items-center gap-1 font-bold text-[11px] text-amber-200 pr-1">
-        <Volume2 className="w-3.5 h-3.5 text-amber-300" />
+    <div className={`inline-flex items-center gap-1.5 p-1 px-3 rounded-full bg-white/10 text-white border border-white/20 text-xs shadow-xs ${className}`}>
+      <span className="flex items-center gap-1 font-bold text-[11px] text-orange-200 pr-1">
+        <Volume2 className="w-3.5 h-3.5 text-[#ff9933]" />
         <span className="hidden sm:inline">Listen:</span>
       </span>
 
       {isSpeaking ? (
         <button
           onClick={handlePause}
-          className="flex items-center gap-1 bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold px-2 py-0.5 rounded-full text-[10px] transition-colors"
+          className="flex items-center gap-1 bg-[#f26522] hover:bg-[#dc4f12] text-white font-bold px-2.5 py-0.5 rounded-full text-[10px] transition-colors"
           title="Pause Audio Narration"
         >
           <Pause className="w-3 h-3" />
@@ -124,10 +124,10 @@ export const PageAudioNarrator: React.FC<PageAudioNarratorProps> = ({
       ) : (
         <button
           onClick={handlePlay}
-          className="flex items-center gap-1 bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold px-2.5 py-0.5 rounded-full text-[10px] transition-colors"
+          className="flex items-center gap-1 bg-[#f26522] hover:bg-[#dc4f12] text-white font-bold px-2.5 py-0.5 rounded-full text-[10px] transition-colors"
           title="Listen to Page Summary"
         >
-          <Play className="w-3 h-3 fill-slate-950" />
+          <Play className="w-3 h-3 fill-white" />
           <span>{isPaused ? 'Resume' : 'Listen'}</span>
         </button>
       )}
@@ -135,7 +135,7 @@ export const PageAudioNarrator: React.FC<PageAudioNarratorProps> = ({
       {(isSpeaking || isPaused) && (
         <button
           onClick={handleStop}
-          className="p-1 rounded-full hover:bg-white/20 text-slate-300 transition-colors"
+          className="p-1 rounded-full hover:bg-white/20 text-slate-200 transition-colors"
           title="Stop Narration"
         >
           <Square className="w-3 h-3 fill-current" />
@@ -143,8 +143,8 @@ export const PageAudioNarrator: React.FC<PageAudioNarratorProps> = ({
       )}
 
       {isSpeaking && (
-        <span className="flex items-center gap-1 text-[10px] text-amber-300 font-semibold pl-1 animate-pulse">
-          <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+        <span className="flex items-center gap-1 text-[10px] text-[#4ad178] font-semibold pl-1 animate-pulse">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#4ad178]"></span>
           <span className="hidden md:inline truncate max-w-[120px]">{activeSectionLabel}</span>
         </span>
       )}
