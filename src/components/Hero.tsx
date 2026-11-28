@@ -8,6 +8,7 @@ import {
   Calendar,
   Sparkles,
 } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface HeroProps {
   onNavigate: (sectionId: string) => void;
@@ -85,6 +86,7 @@ const HERO_SLIDES: HeroSlide[] = [
 ];
 
 export const Hero: React.FC<HeroProps> = ({ onNavigate, onOpenAiModal }) => {
+  const { t } = useLanguage();
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [isPaused, setIsPaused] = useState<boolean>(false);
   const [isHovered, setIsHovered] = useState<boolean>(false);
@@ -103,7 +105,7 @@ export const Hero: React.FC<HeroProps> = ({ onNavigate, onOpenAiModal }) => {
     return () => window.clearInterval(timer);
   }, [isPaused, isHovered, goToNext]);
 
-  const activeSlide = HERO_SLIDES[currentIndex];
+  const activeCaption = t.hero.slideCaptions[currentIndex] || HERO_SLIDES[currentIndex].caption;
 
   return (
     <section id="home" className="relative bg-white text-slate-900 border-b border-slate-200">
@@ -112,16 +114,16 @@ export const Hero: React.FC<HeroProps> = ({ onNavigate, onOpenAiModal }) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center gap-3">
           <div className="flex items-center gap-1.5 shrink-0 bg-[#f26522] text-white font-extrabold text-[11px] uppercase px-2.5 py-0.5 rounded shadow-xs tracking-wider">
             <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
-            Live Updates
+            {t.hero.liveUpdates}
           </div>
 
           <div className="overflow-hidden whitespace-nowrap text-xs font-semibold tracking-wide text-slate-800">
             <div className="inline-block animate-marquee space-x-8">
-              <span><strong>Flagship Youth Exchange 2026:</strong> Registrations now open for Manipur &amp; Nagaland Student Delegation!</span>
+              <span><strong>{t.hero.marquee1Title}</strong> {t.hero.marquee1Body}</span>
               <span>•</span>
-              <span><strong>Bhasha Sangam:</strong> Weekly Meiteilon &amp; Ao Naga language learning circles every Wednesday at LHC-102</span>
+              <span><strong>{t.hero.marquee2Title}</strong> {t.hero.marquee2Body}</span>
               <span>•</span>
-              <span><strong>National Integration Quiz:</strong> Test your cultural knowledge &amp; earn your Digital EBSB Badge!</span>
+              <span><strong>{t.hero.marquee3Title}</strong> {t.hero.marquee3Body}</span>
             </div>
           </div>
         </div>
@@ -235,7 +237,7 @@ export const Hero: React.FC<HeroProps> = ({ onNavigate, onOpenAiModal }) => {
           <div className="flex items-center gap-2.5 text-center sm:text-left min-w-0">
             <span className="shrink-0 w-2 h-2 rounded-full bg-[#f26522]" />
             <p className="text-xs sm:text-sm font-bold text-[#163c6b] truncate">
-              {activeSlide.caption}
+              {activeCaption}
             </p>
           </div>
 
@@ -245,7 +247,7 @@ export const Hero: React.FC<HeroProps> = ({ onNavigate, onOpenAiModal }) => {
               onClick={() => onNavigate('paired-states')}
               className="bg-[#f26522] hover:bg-[#dc4f12] text-white px-3.5 py-1.5 rounded-md text-xs font-bold transition-colors flex items-center gap-1.5 shadow-2xs"
             >
-              <span>Partner States</span>
+              <span>{t.hero.partnerStatesBtn}</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
             <button
@@ -254,7 +256,7 @@ export const Hero: React.FC<HeroProps> = ({ onNavigate, onOpenAiModal }) => {
               className="bg-white hover:bg-orange-50 text-[#163c6b] border border-slate-300 px-3.5 py-1.5 rounded-md text-xs font-bold transition-colors flex items-center gap-1.5"
             >
               <Calendar className="w-3.5 h-3.5 text-[#f26522]" />
-              <span>Events</span>
+              <span>{t.hero.eventsBtn}</span>
             </button>
             <button
               type="button"
@@ -262,7 +264,7 @@ export const Hero: React.FC<HeroProps> = ({ onNavigate, onOpenAiModal }) => {
               className="bg-[#163c6b] hover:bg-[#102847] text-white px-3.5 py-1.5 rounded-md text-xs font-bold transition-colors flex items-center gap-1.5 shadow-2xs"
             >
               <Sparkles className="w-3.5 h-3.5 text-[#ff9933]" />
-              <span>Cultural Guide</span>
+              <span>{t.hero.culturalGuideBtn}</span>
             </button>
           </div>
         </div>

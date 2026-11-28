@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { EVENTS_DATA } from '../data/ebsbData';
 import { EventItem } from '../types';
 import { Calendar, MapPin, Clock, Search, Filter, CheckCircle, X, User, Mail, Phone, Check, Timer, Flame } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface CountdownBreakdown {
   days: number;
@@ -69,6 +70,7 @@ function padTwo(val: number): string {
 }
 
 export const EventsSection: React.FC = () => {
+  const { t } = useLanguage();
   const [activeCategory, setActiveCategory] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedEventModal, setSelectedEventModal] = useState<EventItem | null>(null);
@@ -161,13 +163,13 @@ export const EventsSection: React.FC = () => {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-8 border-b border-slate-200">
           <div className="space-y-3 max-w-2xl">
             <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#fff2e6] text-[#b83d0d] border border-[#fed7ba] text-xs font-bold uppercase tracking-wider shadow-xs">
-              EBSB Calendar & Youth Delegation
+              {t.events.badge}
             </div>
             <h2 className="text-3xl sm:text-4xl font-black text-[#163c6b] tracking-tight">
-              EBSB Events & Youth Exchanges
+              {t.events.title}
             </h2>
             <p className="text-slate-600 text-sm sm:text-base font-medium">
-              Explore upcoming inter-state youth exchange programs, Bhasha Sangam workshops, food festivals, and cultural night archives at IIT Indore.
+              {t.events.subtitle}
             </p>
           </div>
 
@@ -178,7 +180,7 @@ export const EventsSection: React.FC = () => {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search events, venues..."
+              placeholder={t.events.searchPlaceholder}
               className="w-full bg-white text-slate-900 text-xs pl-10 pr-4 py-3 rounded-full border border-slate-300 focus:outline-none focus:border-[#f26522] transition-colors shadow-xs font-medium"
             />
           </div>
@@ -193,7 +195,7 @@ export const EventsSection: React.FC = () => {
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-[#f26522] text-white text-[10px] font-extrabold uppercase tracking-wider">
                     <Flame className="w-3 h-3" />
-                    {nextSpotlightCountdown.isUrgent ? 'Registration Closing Soon' : 'Next Upcoming Event'}
+                    {nextSpotlightCountdown.isUrgent ? t.events.closingSoon : t.events.nextEvent}
                   </span>
                   <span className="text-[11px] font-semibold text-orange-200">
                     {nextUpcomingEvent.date} • {nextUpcomingEvent.time}
@@ -241,7 +243,7 @@ export const EventsSection: React.FC = () => {
                     onClick={() => setRegistrationModalEvent(nextUpcomingEvent)}
                     className="px-5 py-3 rounded-xl bg-[#f26522] hover:bg-[#dc4f12] text-white text-xs font-extrabold tracking-wide transition-colors shadow-md whitespace-nowrap"
                   >
-                    Register Before Cutoff
+                    {t.events.registerCutoff}
                   </button>
                 )}
               </div>
@@ -346,10 +348,10 @@ export const EventsSection: React.FC = () => {
                     <div className="flex items-center justify-between text-[10px] font-extrabold uppercase tracking-wider">
                       <span className={`inline-flex items-center gap-1 ${countdown.isUrgent ? 'text-[#b83d0d]' : 'text-[#163c6b]'}`}>
                         <Timer className="w-3.5 h-3.5 text-[#f26522]" />
-                        {ev.registrationOpen ? 'Registration Ends In' : 'Event Starts In'}
+                        {ev.registrationOpen ? t.events.regEndsIn : t.events.eventStartsIn}
                       </span>
                       {countdown.isUrgent && (
-                        <span className="text-[#f26522]">Filling Fast</span>
+                        <span className="text-[#f26522]">{t.events.fillingFast}</span>
                       )}
                     </div>
 
@@ -382,7 +384,7 @@ export const EventsSection: React.FC = () => {
                     onClick={() => setSelectedEventModal(ev)}
                     className="px-4 py-2 rounded-full bg-[#f8f9fb] hover:bg-white text-xs text-[#163c6b] font-bold border border-slate-200 hover:border-[#163c6b] transition-colors"
                   >
-                    View Details
+                    {t.events.viewDetails}
                   </button>
 
                   {ev.registrationOpen && (
@@ -390,7 +392,7 @@ export const EventsSection: React.FC = () => {
                       onClick={() => setRegistrationModalEvent(ev)}
                       className="px-5 py-2 rounded-full bg-[#f26522] hover:bg-[#dc4f12] text-white text-xs font-bold transition-colors shadow-sm"
                     >
-                      Register Now
+                      {t.events.registerNow}
                     </button>
                   )}
                 </div>

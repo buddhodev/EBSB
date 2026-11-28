@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Sparkles, Menu, X, Sun, Moon, Type, Search, Shield, Heart, LogIn, LogOut, Loader2 } from 'lucide-react';
+import { Sparkles, Menu, X, Sun, Moon, Type, Search, Shield, Heart, LogIn, LogOut, Loader2, Languages } from 'lucide-react';
 import { AccessibilitySettings } from '../types';
 import { PageAudioNarrator } from './PageAudioNarrator';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage, LANGUAGE_OPTIONS } from '../contexts/LanguageContext';
 
 interface NavbarProps {
   activeSection: string;
@@ -25,17 +26,18 @@ export const Navbar: React.FC<NavbarProps> = ({
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user, authReady, signingIn, signInWithGoogle, signOutUser } = useAuth();
+  const { language, setLanguage, t } = useLanguage();
 
   const navItems = [
-    { id: 'home', label: 'Home' },
-    { id: 'about', label: 'About EBSB' },
-    { id: 'paired-states', label: 'Paired States' },
-    { id: 'cultural-map', label: 'Cultural Map' },
-    { id: 'events', label: 'Events & Exchange' },
-    { id: 'bhasha-sangam', label: 'Bhasha Sangam' },
-    { id: 'sanskrit-hub', label: 'Sanskrit Hub' },
-    { id: 'gallery', label: 'Gallery' },
-    { id: 'team-contact', label: 'Team & Contact' },
+    { id: 'home', label: t.nav.home },
+    { id: 'about', label: t.nav.about },
+    { id: 'paired-states', label: t.nav.pairedStates },
+    { id: 'cultural-map', label: t.nav.culturalMap },
+    { id: 'events', label: t.nav.events },
+    { id: 'bhasha-sangam', label: t.nav.bhashaSangam },
+    { id: 'sanskrit-hub', label: t.nav.sanskritHub },
+    { id: 'gallery', label: t.nav.gallery },
+    { id: 'team-contact', label: t.nav.teamContact },
   ];
 
   const currentItem = navItems.find((item) => item.id === activeSection) || navItems[0];
@@ -75,14 +77,42 @@ export const Navbar: React.FC<NavbarProps> = ({
       <div className="bg-[#1f242b] text-slate-100 text-xs py-1.5 px-4 sm:px-8 flex flex-wrap items-center justify-between gap-2 border-b border-slate-700">
         <div className="flex items-center gap-3 font-medium">
           <span className="bg-[#f26522] text-white px-2.5 py-0.5 rounded text-[10px] uppercase tracking-wider font-bold">
-            भारत सरकार | Govt. of India
+            {t.topBar.govtBadge}
           </span>
           <span className="hidden md:inline text-slate-200 font-medium">
-            Ministry of Education • Ek Bharat Shreshtha Bharat Cell at IIT Indore
+            {t.topBar.ministrySubtitle}
           </span>
         </div>
 
-        <div className="flex items-center gap-2 sm:gap-3 text-xs">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-2.5 text-xs">
+          {/* Language Switcher: English / Hindi / Manipuri */}
+          <div
+            className="inline-flex items-center bg-white/10 rounded-full p-0.5 border border-white/25"
+            role="group"
+            aria-label="Switch site language"
+          >
+            <Languages className="w-3.5 h-3.5 text-[#ff9933] ml-1.5 mr-1 shrink-0" aria-hidden="true" />
+            {LANGUAGE_OPTIONS.map((opt) => {
+              const isSelected = language === opt.code;
+              return (
+                <button
+                  key={opt.code}
+                  type="button"
+                  onClick={() => setLanguage(opt.code)}
+                  aria-pressed={isSelected}
+                  title={`Switch language to ${opt.englishName}`}
+                  className={`px-2 py-0.5 rounded-full text-[11px] font-bold transition-colors ${
+                    isSelected
+                      ? 'bg-[#f26522] text-white shadow-xs'
+                      : 'text-slate-200 hover:text-white hover:bg-white/10'
+                  }`}
+                >
+                  {opt.shortLabel}
+                </button>
+              );
+            })}
+          </div>
+
           {/* Page Audio Narrator Web Speech API */}
           <PageAudioNarrator
             activeSection={activeSection}
@@ -112,9 +142,9 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
 
           {/* Screen Reader Label */}
-          <div className="hidden lg:flex items-center gap-1 text-[11px] text-white/90 font-medium">
+          <div className="hidden xl:flex items-center gap-1 text-[11px] text-white/90 font-medium">
             <Shield className="w-3 h-3 text-emerald-300" />
-            <span>WCAG 2.1 AA Accessible</span>
+            <span>{t.topBar.wcagLabel}</span>
           </div>
 
           {/* Account Sign-In / Profile Chip */}
@@ -140,7 +170,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   type="button"
                   onClick={() => void signOutUser()}
                   className="ml-0.5 text-slate-200 hover:text-[#ff9933] transition-colors"
-                  title="Sign Out"
+                  title={t.topBar.signOut}
                   aria-label="Sign out of EBSB Portal"
                 >
                   <LogOut className="w-3 h-3" />
@@ -159,7 +189,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 ) : (
                   <LogIn className="w-3 h-3" />
                 )}
-                <span>{signingIn ? 'Signing in...' : 'Sign In'}</span>
+                <span>{signingIn ? t.topBar.signingIn : t.topBar.signIn}</span>
               </button>
             )
           )}
@@ -197,14 +227,14 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="min-w-0">
             <div className="flex items-center gap-1.5">
               <span className="font-extrabold text-base sm:text-lg tracking-tight text-[#163c6b] whitespace-nowrap">
-                IIT INDORE
+                {t.brand.institute}
               </span>
               <span className="text-[10px] bg-orange-100 text-[#b83d0d] px-2 py-0.5 rounded font-bold border border-orange-200 whitespace-nowrap">
-                EBSB CELL
+                {t.brand.cellTag}
               </span>
             </div>
             <p className="text-[10px] uppercase tracking-wider text-[#138808] font-bold whitespace-nowrap">
-              Ek Bharat Shreshtha Bharat
+              {t.brand.ebsbName}
             </p>
           </div>
         </div>
@@ -217,7 +247,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               <button
                 key={item.id}
                 onClick={() => handleNavClick(item.id)}
-                className={`px-3 py-1.5 rounded-md text-sm font-semibold transition-all whitespace-nowrap ${
+                className={`px-2.5 xl:px-3 py-1.5 rounded-md text-xs xl:text-sm font-semibold transition-all whitespace-nowrap ${
                   isActive
                     ? accessibility.highContrast
                       ? 'bg-yellow-400 text-black font-bold'
@@ -237,8 +267,8 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             onClick={onOpenSearch}
             className="p-2.5 rounded-md bg-slate-100 text-slate-700 hover:text-[#f26522] hover:bg-orange-50 transition-colors border border-slate-200"
-            title="Search Events, Culture, Languages"
-            aria-label="Search events and cultural content"
+            title={t.nav.searchTooltip}
+            aria-label={t.nav.searchTooltip}
           >
             <Search className="w-4 h-4" />
           </button>
@@ -246,19 +276,19 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* AI Guide Trigger */}
           <button
             onClick={() => onOpenAiModal('assistant')}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-md text-xs font-bold bg-[#163c6b] hover:bg-[#102847] text-white shadow-sm transition-all whitespace-nowrap"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-md text-xs font-bold bg-[#163c6b] hover:bg-[#102847] text-white shadow-sm transition-all whitespace-nowrap"
           >
             <Sparkles className="w-3.5 h-3.5 text-[#ff9933]" />
-            <span>AI Cultural Guide</span>
+            <span>{t.nav.aiGuideBtn}</span>
           </button>
 
           {/* Volunteer CTA */}
           <button
             onClick={onOpenVolunteerModal}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-md text-xs font-bold bg-[#138808] hover:bg-[#0f7506] text-white shadow-sm transition-colors whitespace-nowrap"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-md text-xs font-bold bg-[#138808] hover:bg-[#0f7506] text-white shadow-sm transition-colors whitespace-nowrap"
           >
             <Heart className="w-3.5 h-3.5 text-orange-200" />
-            <span>Join EBSB</span>
+            <span>{t.nav.joinEbsbBtn}</span>
           </button>
         </div>
 
@@ -288,6 +318,34 @@ export const Navbar: React.FC<NavbarProps> = ({
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
         <div className="lg:hidden bg-white border-b border-slate-200 px-4 pt-3 pb-6 space-y-2 animate-fadeIn text-slate-800 shadow-lg">
+          {/* Mobile Language Switcher */}
+          <div className="pb-2 mb-1 border-b border-slate-200 flex items-center justify-between gap-2">
+            <span className="inline-flex items-center gap-1.5 text-xs font-bold text-[#163c6b]">
+              <Languages className="w-4 h-4 text-[#f26522]" />
+              {t.topBar.languageLabel}
+            </span>
+            <div className="inline-flex items-center gap-1 bg-slate-100 p-1 rounded-lg border border-slate-200">
+              {LANGUAGE_OPTIONS.map((opt) => {
+                const isSelected = language === opt.code;
+                return (
+                  <button
+                    key={opt.code}
+                    type="button"
+                    onClick={() => setLanguage(opt.code)}
+                    aria-pressed={isSelected}
+                    className={`px-2.5 py-1 rounded-md text-xs font-bold transition-colors ${
+                      isSelected
+                        ? 'bg-[#f26522] text-white shadow-2xs'
+                        : 'text-slate-700 hover:bg-white'
+                    }`}
+                  >
+                    {opt.nativeLabel}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
           {navItems.map((item) => (
             <button
               key={item.id}
@@ -311,7 +369,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold bg-[#163c6b] text-white shadow-sm"
             >
               <Sparkles className="w-4 h-4 text-[#ff9933]" />
-              <span>Ask AI Cultural Guide</span>
+              <span>{t.nav.askAiMobile}</span>
             </button>
 
             <button
@@ -321,7 +379,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               }}
               className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold bg-orange-50 text-[#b83d0d] border border-orange-200"
             >
-              <span>Take AI Integration Quiz</span>
+              <span>{t.nav.takeQuizMobile}</span>
             </button>
 
             <button
@@ -332,7 +390,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold bg-[#138808] hover:bg-[#0f7506] text-white shadow-sm"
             >
               <Heart className="w-4 h-4 text-orange-200" />
-              <span>Register as Student Volunteer</span>
+              <span>{t.nav.registerVolunteerMobile}</span>
             </button>
 
             {authReady && (
@@ -346,7 +404,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold bg-slate-100 hover:bg-rose-50 text-slate-800 hover:text-rose-700 border border-slate-200"
                 >
                   <LogOut className="w-4 h-4" />
-                  <span>Sign Out ({user.displayName?.split(' ')[0] || 'Account'})</span>
+                  <span>{t.topBar.signOut} ({user.displayName?.split(' ')[0] || 'Account'})</span>
                 </button>
               ) : (
                 <button
@@ -359,7 +417,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold bg-[#f26522] hover:bg-[#dc4f12] text-white shadow-sm"
                 >
                   <LogIn className="w-4 h-4" />
-                  <span>{signingIn ? 'Signing in...' : 'Sign in with Google'}</span>
+                  <span>{signingIn ? t.topBar.signingIn : t.nav.signInGoogle}</span>
                 </button>
               )
             )}

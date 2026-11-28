@@ -14,11 +14,13 @@ import { Footer } from './components/Footer';
 import { AiCulturalGuideModal } from './components/AiCulturalGuideModal';
 import { QuickActionsMenu } from './components/QuickActionsMenu';
 import { useAuth, PreferredCellOption } from './contexts/AuthContext';
+import { useLanguage } from './contexts/LanguageContext';
 import { AccessibilitySettings } from './types';
 import { Search, X, CheckCircle2, Compass, LogIn, Loader2, AlertCircle } from 'lucide-react';
 import { PAIRED_STATES_DATA, EVENTS_DATA, BHASHA_PHRASES } from './data/ebsbData';
 
 export default function App() {
+  const { t } = useLanguage();
   const [activeSection, setActiveSection] = useState<string>('home');
 
   // Accessibility State
@@ -169,7 +171,7 @@ export default function App() {
         {activeSection === 'about' && (
           <div>
             <PageHeaderBreadcrumb
-              pageTitle="About EBSB Cell & Mandate"
+              pageTitle={t.breadcrumb.pageTitles.about}
               onGoHome={() => {
                 setActiveSection('home');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -182,7 +184,7 @@ export default function App() {
         {activeSection === 'paired-states' && (
           <div>
             <PageHeaderBreadcrumb
-              pageTitle="Paired States Hub (MP ↔ Manipur/Nagaland)"
+              pageTitle={t.breadcrumb.pageTitles['paired-states']}
               onGoHome={() => {
                 setActiveSection('home');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -195,7 +197,7 @@ export default function App() {
         {activeSection === 'cultural-map' && (
           <div>
             <PageHeaderBreadcrumb
-              pageTitle="Interactive EBSB Cultural Map"
+              pageTitle={t.breadcrumb.pageTitles['cultural-map']}
               onGoHome={() => {
                 setActiveSection('home');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -208,7 +210,7 @@ export default function App() {
         {activeSection === 'events' && (
           <div>
             <PageHeaderBreadcrumb
-              pageTitle="Youth Exchange & Events Calendar"
+              pageTitle={t.breadcrumb.pageTitles.events}
               onGoHome={() => {
                 setActiveSection('home');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -221,7 +223,7 @@ export default function App() {
         {activeSection === 'bhasha-sangam' && (
           <div>
             <PageHeaderBreadcrumb
-              pageTitle="Bhasha Sangam Language Hub"
+              pageTitle={t.breadcrumb.pageTitles['bhasha-sangam']}
               onGoHome={() => {
                 setActiveSection('home');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -234,7 +236,7 @@ export default function App() {
         {activeSection === 'sanskrit-hub' && (
           <div>
             <PageHeaderBreadcrumb
-              pageTitle="Sanskrit Language & Heritage Hub"
+              pageTitle={t.breadcrumb.pageTitles['sanskrit-hub']}
               onGoHome={() => {
                 setActiveSection('home');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -247,7 +249,7 @@ export default function App() {
         {activeSection === 'gallery' && (
           <div>
             <PageHeaderBreadcrumb
-              pageTitle="Media Gallery & Student Stories"
+              pageTitle={t.breadcrumb.pageTitles.gallery}
               onGoHome={() => {
                 setActiveSection('home');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -260,7 +262,7 @@ export default function App() {
         {activeSection === 'team-contact' && (
           <div>
             <PageHeaderBreadcrumb
-              pageTitle="EBSB Committee & Contact Desk"
+              pageTitle={t.breadcrumb.pageTitles['team-contact']}
               onGoHome={() => {
                 setActiveSection('home');
                 window.scrollTo({ top: 0, behavior: 'smooth' });

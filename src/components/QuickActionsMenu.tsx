@@ -13,6 +13,7 @@ import {
   User as UserIcon,
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface QuickActionsMenuProps {
   onOpenBhashaQuiz: () => void;
@@ -48,6 +49,7 @@ export const QuickActionsMenu: React.FC<QuickActionsMenuProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const { t } = useLanguage();
   const {
     user,
     authReady,
@@ -115,10 +117,10 @@ export const QuickActionsMenu: React.FC<QuickActionsMenuProps> = ({
             <div>
               <div className="flex items-center gap-1.5">
                 <Zap className="w-4 h-4 text-[#ff9933]" />
-                <h3 className="text-sm font-extrabold tracking-tight">Quick Actions</h3>
+                <h3 className="text-sm font-extrabold tracking-tight">{t.quickActions.title}</h3>
               </div>
               <p className="text-[11px] text-slate-200 mt-0.5">
-                IIT Indore • Ek Bharat Shreshtha Bharat
+                {t.quickActions.subtitle}
               </p>
             </div>
             <button
@@ -170,20 +172,20 @@ export const QuickActionsMenu: React.FC<QuickActionsMenuProps> = ({
                       title="Sign out of EBSB Portal"
                     >
                       <LogOut className="w-3.5 h-3.5" />
-                      <span>Sign Out</span>
+                      <span>{t.quickActions.signOut}</span>
                     </button>
                   </div>
 
                   {/* Live Activity Summary */}
                   <div className="grid grid-cols-2 gap-2 pt-1 border-t border-slate-200/80 text-[11px]">
                     <div className="bg-white rounded-lg px-2.5 py-1.5 border border-slate-200 flex items-center justify-between">
-                      <span className="text-slate-600 font-medium">Quizzes</span>
+                      <span className="text-slate-600 font-medium">{t.quickActions.quizzesLabel}</span>
                       <span className="font-extrabold text-[#138808]">{quizAttempts.length}</span>
                     </div>
                     <div className="bg-white rounded-lg px-2.5 py-1.5 border border-slate-200 flex items-center justify-between">
-                      <span className="text-slate-600 font-medium">Volunteer</span>
+                      <span className="text-slate-600 font-medium">{t.quickActions.volunteerLabel}</span>
                       <span className={`font-extrabold ${hasApplied ? 'text-[#138808]' : 'text-slate-500'}`}>
-                        {hasApplied ? 'Submitted' : 'Open'}
+                        {hasApplied ? t.quickActions.submittedStatus : t.quickActions.openStatus}
                       </span>
                     </div>
                   </div>
@@ -195,8 +197,8 @@ export const QuickActionsMenu: React.FC<QuickActionsMenuProps> = ({
                       <UserIcon className="w-4 h-4" />
                     </div>
                     <div className="text-[11px] text-slate-600 leading-snug">
-                      <span className="font-bold text-[#163c6b] block">Sign in to IITI EBSB Portal</span>
-                      Save your Bhasha Quiz scores and submit verified Volunteer Applications.
+                      <span className="font-bold text-[#163c6b] block">{t.quickActions.signInHeading}</span>
+                      {t.quickActions.signInDesc}
                     </div>
                   </div>
 
@@ -209,12 +211,12 @@ export const QuickActionsMenu: React.FC<QuickActionsMenuProps> = ({
                     {signingIn ? (
                       <>
                         <Loader2 className="w-4 h-4 animate-spin text-[#163c6b]" />
-                        <span>Signing in...</span>
+                        <span>{t.quickActions.signingIn}</span>
                       </>
                     ) : (
                       <>
                         <GoogleIcon className="w-4 h-4" />
-                        <span>Sign in with Google</span>
+                        <span>{t.quickActions.signInGoogle}</span>
                       </>
                     )}
                   </button>
@@ -240,7 +242,7 @@ export const QuickActionsMenu: React.FC<QuickActionsMenuProps> = ({
             {/* Quick Action Items */}
             <div className="space-y-2">
               <div className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 px-1">
-                Frequently Used Actions
+                {t.quickActions.frequentlyUsed}
               </div>
 
               {/* 1. Bhasha Quiz */}
@@ -255,16 +257,16 @@ export const QuickActionsMenu: React.FC<QuickActionsMenuProps> = ({
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2">
                     <span className="text-xs font-extrabold text-[#163c6b] group-hover:text-[#138808] transition-colors">
-                      Bhasha Quiz
+                      {t.quickActions.bhashaQuizTitle}
                     </span>
                     {user && quizAttempts.length > 0 && (
                       <span className="text-[10px] font-bold text-[#138808] bg-[#e8f5e9] px-1.5 py-0.5 rounded">
-                        {quizAttempts.length} saved
+                        {quizAttempts.length} {t.quickActions.savedSuffix}
                       </span>
                     )}
                   </div>
                   <p className="text-[11px] text-slate-500 truncate mt-0.5">
-                    Test regional phrases, heritage & state pairings
+                    {t.quickActions.bhashaQuizDesc}
                   </p>
                 </div>
                 <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#138808] group-hover:translate-x-0.5 transition-all shrink-0" />
@@ -282,19 +284,19 @@ export const QuickActionsMenu: React.FC<QuickActionsMenuProps> = ({
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2">
                     <span className="text-xs font-extrabold text-[#163c6b] group-hover:text-[#b83d0d] transition-colors">
-                      Volunteer Application
+                      {t.quickActions.volunteerTitle}
                     </span>
                     {hasApplied && (
                       <span className="inline-flex items-center gap-0.5 text-[10px] font-bold text-[#138808] bg-[#e8f5e9] px-1.5 py-0.5 rounded">
                         <CheckCircle2 className="w-3 h-3" />
-                        Applied
+                        {t.quickActions.appliedBadge}
                       </span>
                     )}
                   </div>
                   <p className="text-[11px] text-slate-500 truncate mt-0.5">
                     {hasApplied
-                      ? 'View your submission status or apply for another cell'
-                      : 'Join the IIT Indore EBSB student volunteer crew'}
+                      ? t.quickActions.volunteerDescApplied
+                      : t.quickActions.volunteerDescOpen}
                   </p>
                 </div>
                 <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#f26522] group-hover:translate-x-0.5 transition-all shrink-0" />
@@ -311,10 +313,10 @@ export const QuickActionsMenu: React.FC<QuickActionsMenuProps> = ({
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="text-xs font-extrabold text-[#163c6b]">
-                    Cultural Guide
+                    {t.quickActions.culturalGuideTitle}
                   </div>
                   <p className="text-[11px] text-slate-500 truncate mt-0.5">
-                    Explore MP, Manipur & Nagaland traditions with AI
+                    {t.quickActions.culturalGuideDesc}
                   </p>
                 </div>
                 <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#163c6b] group-hover:translate-x-0.5 transition-all shrink-0" />
@@ -357,7 +359,7 @@ export const QuickActionsMenu: React.FC<QuickActionsMenuProps> = ({
             />
           )}
         </span>
-        <span className="tracking-wide">{isOpen ? 'Close Menu' : 'Quick Actions'}</span>
+        <span className="tracking-wide">{isOpen ? t.quickActions.closeMenu : t.quickActions.title}</span>
       </button>
     </div>
   );
